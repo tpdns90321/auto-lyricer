@@ -5,7 +5,6 @@ import (
   "log"
 	"io"
 	"os"
-	"sync"
 
 	"github.com/kkdai/youtube/v2"
 	"github.com/pocketbase/pocketbase"
@@ -59,12 +58,13 @@ func youtubePipelineWorker(app *pocketbase.PocketBase) {
     }
 
     ctx := context.Background()
-
-    wg := sync.WaitGroup{}
-    wg.Add(1)
+    done := make(chan error)
 
     go func() {
-      defer wg.Done()
+      defer func() {
+        done <- nil
+      }()
+
       formats := video.Formats.Quality("medium")
       // first format is video only, second format is video with audio
       youtubeStream, _, err := client.GetStreamContext(ctx, video, &formats[1])
@@ -79,7 +79,7 @@ func youtubePipelineWorker(app *pocketbase.PocketBase) {
       }()
 
       if err != nil {
-        log.Println(err)
+        done <- err
         return
       }
 
@@ -87,7 +87,7 @@ func youtubePipelineWorker(app *pocketbase.PocketBase) {
 
       err = ffmpeg.Input(videoFilePath).Output(musicFilePath).Run()
       if err != nil {
-        log.Println(err)
+        done <- err
         return
       }
 
@@ -98,28 +98,32 @@ func youtubePipelineWorker(app *pocketbase.PocketBase) {
       }()
 
       if err != nil {
-        log.Println(err)
+        done <- err
         return
       }
-
-      if music, err := io.ReadAll(musicFile); err == nil {
-        data, err := transcriptor.Transcription(ctx, music)
-        if err == nil {
-          videoRecord.Transcription = data
-        } else {
-          log.Println(err)
-        }
-      } else {
-        log.Println(err)
+      music, err := io.ReadAll(musicFile)
+      if err != nil {
+        done <- err
+        return
       }
+      data, err := transcriptor.Transcription(ctx, music)
+      if err != nil  {
+        done <- err
+        return
+      }
+      videoRecord.Transcription = data
     }()
+
+    err = <-done
+    if err != nil {
+      log.Println(err)
+      continue
+    }
 
     videoRecord.Title = video.Title
     videoRecord.Author = video.Author
 
-    wg.Wait()
     videoRecord.Update()
     app.Dao().SaveRecord(videoRecord.Record)
-    ctx.Done()
   }
 }

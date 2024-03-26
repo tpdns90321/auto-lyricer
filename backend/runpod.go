@@ -63,7 +63,7 @@ func (client *RunpodWhisperClient) Transcription(_ context.Context, file []byte)
       AudioBase64: &audioBase64,
       Model: "large-v3",
       Transcription: "srt",
-      Temperature: 0.6,
+      Temperature: 0.65,
     },
   }
 
