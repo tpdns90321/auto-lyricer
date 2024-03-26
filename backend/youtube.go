@@ -11,7 +11,7 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/models"
-	"github.com/u2takey/ffmpeg-go"
+	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
 
 type Transcriptor interface {
@@ -85,7 +85,7 @@ func youtubePipelineWorker(app *pocketbase.PocketBase) {
 
       io.Copy(videoFile, youtubeStream)
 
-      err = ffmpeg_go.Input(videoFilePath).Output(musicFilePath).Run()
+      err = ffmpeg.Input(videoFilePath).Output(musicFilePath).Run()
       if err != nil {
         log.Println(err)
         return
@@ -120,5 +120,6 @@ func youtubePipelineWorker(app *pocketbase.PocketBase) {
     wg.Wait()
     videoRecord.Update()
     app.Dao().SaveRecord(videoRecord.Record)
+    ctx.Done()
   }
 }

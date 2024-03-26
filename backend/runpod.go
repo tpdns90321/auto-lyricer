@@ -52,7 +52,7 @@ func initializeRunpodWhisperClient() (*RunpodWhisperClient, error) {
   return nil, errors.New("Invalid token")
 }
 
-func (client *RunpodWhisperClient) Transcription(ctx context.Context, file []byte) (string, error) {
+func (client *RunpodWhisperClient) Transcription(_ context.Context, file []byte) (string, error) {
   if (client.token == "") {
     return "", errors.New("Invalid token")
   }
