@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"net/http"
 	"os"
 )
@@ -25,6 +24,8 @@ type RunpodWhisperTranscriptionRequestInput struct {
   Translate bool `json:"translate"`
   Language *string `json:"language"`
   Temperature float32 `json:"temperature"`
+  BestOf int `json:"best_of"`
+  BeamSize int `json:"beam_size"`
 }
 
 type RunpodWhisperTranscriptionRequestBody struct {
@@ -63,7 +64,9 @@ func (client *RunpodWhisperClient) Transcription(_ context.Context, file []byte)
       AudioBase64: &audioBase64,
       Model: "large-v3",
       Transcription: "srt",
-      Temperature: 0.65,
+      Temperature: 0.55,
+      BestOf: 5,
+      BeamSize: 5,
     },
   }
 
@@ -89,7 +92,6 @@ func (client *RunpodWhisperClient) Transcription(_ context.Context, file []byte)
   }
 
   responseBodyBinary, _ := io.ReadAll(res.Body)
-  log.Println(string(responseBodyBinary))
   if res.StatusCode != http.StatusOK {
     return "", errors.New("Invalid response")
   }
