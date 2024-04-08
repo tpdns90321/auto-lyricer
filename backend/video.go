@@ -11,7 +11,6 @@ type VideoData struct {
   Title string `json:"title"`
   Author string `json:"author"`
   Transcription string `json:"transcription"`
-  Language string `json:"language"`
 }
 
 type VideoPocketBase struct {
@@ -42,5 +41,4 @@ func (video *VideoPocketBase) Update() {
   video.Set("title", video.Title)
   video.Set("author", video.Author)
   video.Set("transcription", video.Transcription)
-  video.Set("language", video.Language)
 }
