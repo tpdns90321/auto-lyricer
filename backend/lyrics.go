@@ -71,12 +71,12 @@ func convertRecordToLyrics(app *pocketbase.PocketBase, record *models.Record) (*
 }
 
 func (lyrics *LyricsPocketBase) Update() {
-  lyrics.Set("video", lyrics.Video.Record)
+  lyrics.Set("video", lyrics.Video.Record.Id)
   lyrics.Set("plain", lyrics.Plain)
   lyrics.Set("srt", lyrics.Srt)
   lyrics.Set("language", lyrics.Language)
   if lyrics.Referenced != nil {
-    lyrics.Set("referenced", lyrics.Referenced.Record)
+    lyrics.Set("referenced", lyrics.Referenced.Record.Id)
   }
 }
 
