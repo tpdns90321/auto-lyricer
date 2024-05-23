@@ -2,21 +2,17 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
-
-	"github.com/liushuangls/go-anthropic"
 )
 
-func syncPipeline(ctx context.Context, anthrophic *AnthropicClient, lyrics *LyricsData) (string, error) {
-  messages := []Message{
-    &UserMessage{`**Instructions**:
+func syncPipeline(ctx context.Context, chatAI TextComplection, lyrics *LyricsData) (string, error) {
+	messages := []Message{
+		&UserMessage{`**Instructions**:
 
 1. **Read through the Dialogues and the SRT File**: Understand the flow and structure of both documents.
 
 2. **Identify Key Phrases**: For each line in the dialogues, pick out key phrases or unique words that will help you match the dialogues to the SRT content.
 
-3. **Match the Dialogues to the SRT Content**: Begin with the first line of the SRT file and try to match it with the dialogues using the key phrases you've identified.
+3. **Match the Dialogues to the SRT Content**: Begin with the first line of the SRT file and try to match it with the dialogues using the key phrases you've identified. Should through every line of SRT. and also must not merge or skip the SRT lines in this process.
 
 4. **Document Each Match**: When you find a match, note the sequence number, timing from the SRT file, and both versions of the dialogues for comparison.
 
@@ -58,11 +54,10 @@ Feel the wind in my hair
 Partial match: "Feel the breeze, in my hair" is similar to SRT "Feel the wind in my hair".
 
 3
-00:00:12,000 --> 00:00:17,000
+00:00:10,000 --> 00:00:15,000
 Running freely, without care
 Match: "Running free, without a care" closely matches SRT "Running freely, without care".
 </Matching>
-
 <Summary>
 1
 00:00:00,000 --> 00:00:05,000
@@ -78,22 +73,26 @@ Running free, without a care
 </Summary>
 </Result>
 `},
-    &AssistatntMessage{"Thank you for the instructions and examples. Please provide me with the dialogues and the SRT file so that I can begin the matching process as outlined."},
-    &UserMessage{fmt.Sprintf("<Dialogues>%s</Dialogues><SRT>%s</SRT>",lyrics.Plain, lyrics.VideoData.Transcription)},
-  }
-  log.Println(messages)
+		&AssistatntMessage{"Thank you for the instructions and examples. Please provide me with the dialogues and the SRT file so that I can begin the matching process as outlined."},
+		&UserMessage{"<Dialogues>" + lyrics.Plain + "</Dialogues><SRT>" + lyrics.VideoData.Transcription + "</SRT>"},
+		&AssistatntMessage{`Thank you for providing the dialogues and SRT file. I will follow the instructions to match the dialogues with the SRT content and provide a summary.
 
-  option := ComplectionOption{
-    Model: anthropic.ModelClaude3Sonnet20240229,
-    MaxTokens: 4096,
-  }
+<Result>
+<Matching>`},
+	}
 
-  option.SetTemperature(0.05)
+	option := ComplectionOption{
+		Model:     "gpt-4o",
+		MaxTokens: 4096,
+		StopWords: []string{"</Summary>"},
+	}
 
-  response, err := anthrophic.TextComplete(ctx, messages, option)
-  if err != nil {
-    return "", err
-  }
+	option.SetTemperature(0.40)
 
-  return response, nil
+	response, err := chatAI.TextComplete(ctx, messages, option)
+	if err != nil {
+		return "", err
+	}
+
+	return response, nil
 }

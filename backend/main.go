@@ -1,18 +1,18 @@
 package main
 
 import (
-  "log"
+	"log"
 
-  "github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase"
 )
 
 func main() {
-  app := pocketbase.New()
+	app := pocketbase.New()
 
-  go youtubePipelineWorker(app)
-  go lyricsPipelineWorker(app)
+	go youtubePipelineWorker(app)
+	go lyricsPipelineWorker(app)
 
-  if err := app.Start(); err != nil {
-    log.Fatal(err)
-  }
+	if err := app.Start(); err != nil {
+		log.Fatal(err)
+	}
 }
