@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"io"
 	"log"
 	"os"
@@ -27,6 +28,8 @@ type Transcriptor interface {
 
 func youtubePipelineWorker(app *pocketbase.PocketBase) {
 	whisperClient, err := initializeRunpodWhisperClient()
+	uvrClient, err := initializeRunpodUVRClient()
+
 	var transcriptor Transcriptor = whisperClient
 
 	if err != nil {
@@ -119,11 +122,24 @@ func youtubePipelineWorker(app *pocketbase.PocketBase) {
 				return
 			}
 
+			vocalsBase64, err := uvrClient.extractOnlyVocal(ctx, music)
+			if err != nil {
+				done <- err
+				return
+			}
+
+			vocals := make([]byte, base64.StdEncoding.DecodedLen(len(vocalsBase64)))
+			_, err = base64.StdEncoding.Decode(vocals, []byte(vocalsBase64))
+			if err != nil {
+				done <- err
+				return
+			}
+
 			transcriptorOption := TranscriptorOption{}
 			if videoRecord.Language != "" {
 				transcriptorOption.SetLanguage(videoRecord.Language)
 			}
-			data, err := transcriptor.Transcription(ctx, music, &transcriptorOption)
+			data, err := transcriptor.Transcription(ctx, vocals, &transcriptorOption)
 			if err != nil {
 				done <- err
 				return

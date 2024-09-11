@@ -26,7 +26,7 @@ type ComplectionOption struct {
 	Model        string
 	SystemPrompt string
 	StopWords    []string
-	MaxTokens    int
+	MaxTokens    *int
 	Temperature  *float32
 	TopP         *float32
 	TopK         *int
@@ -42,7 +42,7 @@ func (o *ComplectionOption) SetStopWords(words []string) {
 }
 
 func (o *ComplectionOption) SetMaxTokens(tokens int) {
-	o.MaxTokens = tokens
+	o.MaxTokens = &tokens
 }
 
 func (o *ComplectionOption) SetTemperature(temperature float32) {

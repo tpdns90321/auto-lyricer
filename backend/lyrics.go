@@ -81,7 +81,7 @@ func (lyrics *LyricsPocketBase) Update() {
 }
 
 func lyricsPipelineWorker(app *pocketbase.PocketBase) {
-	anthropicClient, err := NewOpenAIClient()
+	openaiClient, err := NewOpenAIClient()
 
 	if err != nil {
 		log.Println(err)
@@ -105,7 +105,7 @@ func lyricsPipelineWorker(app *pocketbase.PocketBase) {
 		}
 
 		if lyricsRecord.Plain != "" && lyricsRecord.Srt == "" {
-			if srt, err := syncPipeline(ctx, anthropicClient, lyricsRecord.LyricsData); err == nil {
+			if srt, err := syncPipeline(ctx, openaiClient, "gpt-4o", lyricsRecord.LyricsData); err == nil {
 				lyricsRecord.Srt = srt
 				lyricsRecord.Update()
 			} else {

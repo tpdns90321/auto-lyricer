@@ -65,15 +65,19 @@ func (c *OpenAIClient) TextComplete(ctx context.Context, messages []Message, opt
 		}
 	}
 
-	maxTokens := int32(option.MaxTokens)
-	TopLogProbs := int32(*option.TopK)
+	var maxTokens *int32 = nil
+	if option.MaxTokens != nil {
+		originalMaxTokens := *option.MaxTokens
+		convertedMaxTokens := int32(originalMaxTokens)
+		maxTokens = &convertedMaxTokens
+	}
+
 	response, err := c.Client.GetChatCompletions(ctx, azopenai.ChatCompletionsOptions{
 		Messages:       inputs,
 		Stop:           option.StopWords,
-		MaxTokens:      &maxTokens,
+		MaxTokens:      maxTokens,
 		Temperature:    option.Temperature,
 		TopP:           option.TopP,
-		TopLogProbs:    &TopLogProbs,
 		DeploymentName: &option.Model,
 	}, nil)
 

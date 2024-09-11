@@ -38,12 +38,16 @@ func (c *AnthropicClient) TextComplete(ctx context.Context, messages []Message, 
 		}
 	}
 
+	if option.MaxTokens == nil {
+		return "", errors.New("Anthrophic Error: MaxTokens is required")
+	}
+
 	response, err := c.Client.CreateMessages(ctx, anthropic.MessagesRequest{
 		Model:         option.Model,
 		System:        option.SystemPrompt,
 		Messages:      inputs,
 		StopSequences: option.StopWords,
-		MaxTokens:     option.MaxTokens,
+		MaxTokens:     *option.MaxTokens,
 		Temperature:   option.Temperature,
 		TopP:          option.TopP,
 		TopK:          option.TopK,

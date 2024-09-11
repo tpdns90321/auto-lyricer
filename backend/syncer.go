@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-func syncPipeline(ctx context.Context, chatAI TextComplection, lyrics *LyricsData) (string, error) {
+func syncPipeline(ctx context.Context, chatAI TextComplection, llmModel string, lyrics *LyricsData) (string, error) {
 	messages := []Message{
 		&UserMessage{`**Instructions**:
 
@@ -32,10 +32,14 @@ Running free, without a care
 Chasing sunsets on the horizon
 
 2
-00:00:05,000 --> 00:00:10,000
-Feel the wind in my hair
+00:00:05,000 --> 00:00:07,000
+Feel the
 
 3
+00:00:07,000 --> 00:00:10,000
+wind in my hair
+
+4
 00:00:10,000 --> 00:00:15,000
 Running freely, without care
 </SRT>
@@ -50,11 +54,16 @@ Match: "Chasing sunsets, on the horizon" matches with SRT "Chasing sunsets on th
 
 2
 00:00:05,000 --> 00:00:10,000
-Feel the wind in my hair
+Feel the
 Partial match: "Feel the breeze, in my hair" is similar to SRT "Feel the wind in my hair".
 
 3
-00:00:10,000 --> 00:00:15,000
+00:00:07,000 --> 00:00:10,000
+wind in my hair
+Partial match: "Feel the breeze, in my hair" is similar to SRT "Feel the wind in my hair".
+
+4
+00:00:11,000 --> 00:00:15,000
 Running freely, without care
 Match: "Running free, without a care" closely matches SRT "Running freely, without care".
 </Matching>
@@ -68,7 +77,7 @@ Chasing sunsets, on the horizon
 Feel the breeze, in my hair
 
 3
-00:00:12,000 --> 00:00:17,000
+00:00:10,000 --> 00:00:15,000
 Running free, without a care
 </Summary>
 </Result>
@@ -82,12 +91,11 @@ Running free, without a care
 	}
 
 	option := ComplectionOption{
-		Model:     "gpt-4o",
-		MaxTokens: 4096,
+		Model:     llmModel,
 		StopWords: []string{"</Summary>"},
 	}
 
-	option.SetTemperature(0.40)
+	option.SetTemperature(0.50)
 
 	response, err := chatAI.TextComplete(ctx, messages, option)
 	if err != nil {
