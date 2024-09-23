@@ -11,18 +11,18 @@ import (
 )
 
 type LyricsData struct {
-	VideoData  *VideoData  `json:"video"`
-	Plain      string      `json:"plain"`
-	Srt        string      `json:"srt"`
-	Language   string      `json:"language"`
-	Referenced *LyricsData `json:"referenced"`
+	TranscriptionData *TranscriptionData `json:"transcription"`
+	Plain             string             `json:"plain"`
+	Srt               string             `json:"srt"`
+	Language          string             `json:"language"`
+	Referenced        *LyricsData        `json:"referenced"`
 }
 
 type LyricsPocketBase struct {
 	*models.Record
 	*LyricsData
-	Video      *VideoPocketBase
-	Referenced *LyricsPocketBase
+	Transcription *TranscriptionPocketBase
+	Referenced    *LyricsPocketBase
 }
 
 func convertRecordToLyrics(app *pocketbase.PocketBase, record *models.Record) (*LyricsPocketBase, error) {
@@ -35,19 +35,20 @@ func convertRecordToLyrics(app *pocketbase.PocketBase, record *models.Record) (*
 		LyricsData: &LyricsData{},
 	}
 
-	if videoRecordId := record.GetString("video"); videoRecordId != "" {
-		filterVideo, err := app.Dao().FindRecordsByIds("videos", []string{videoRecordId})
+	if transcriptionRecordId := record.GetString("transcription"); transcriptionRecordId != "" {
+		filterTranscription, err := app.Dao().FindRecordsByIds("transcriptions", []string{transcriptionRecordId})
 		if err != nil {
 			return nil, err
 		}
 
-		video, err := convertRecordToVideo(filterVideo[0])
+		log.Println("filterTranscription", filterTranscription[0])
+		transcription, err := convertRecordToTranscription(app, filterTranscription[0])
 		if err != nil {
 			return nil, err
 		}
 
-		lyrics.Video = video
-		lyrics.VideoData = video.VideoData
+		lyrics.Transcription = transcription
+		lyrics.TranscriptionData = transcription.TranscriptionData
 	} else {
 		return nil, errors.New("Invalid video record")
 	}
@@ -71,7 +72,7 @@ func convertRecordToLyrics(app *pocketbase.PocketBase, record *models.Record) (*
 }
 
 func (lyrics *LyricsPocketBase) Update() {
-	lyrics.Set("video", lyrics.Video.Record.Id)
+	lyrics.Set("transcription", lyrics.Transcription.Record.Id)
 	lyrics.Set("plain", lyrics.Plain)
 	lyrics.Set("srt", lyrics.Srt)
 	lyrics.Set("language", lyrics.Language)

@@ -95,7 +95,7 @@ Running free, without a care
 </Result>
 `},
 		&AssistatntMessage{"Thank you for the instructions and examples. Please provide me with the dialogues and the SRT file so that I can begin the matching process as outlined."},
-		&UserMessage{"<Dialogues>" + lyrics.Plain + "</Dialogues><SRT>" + lyrics.VideoData.Transcription + "</SRT>"},
+		&UserMessage{"<Dialogues>" + lyrics.Plain + "</Dialogues><SRT>" + lyrics.TranscriptionData.Transcription + "</SRT>"},
 		&AssistatntMessage{`Thank you for providing the dialogues and SRT file. I will follow the instructions to match the dialogues with the SRT content and provide a summary.
 
 <Result>
