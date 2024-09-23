@@ -2,17 +2,29 @@ package main
 
 import (
 	"context"
+	"log"
 )
 
-func syncPipeline(ctx context.Context, chatAI TextComplection, llmModel string, lyrics *LyricsData) (string, error) {
+func syncPipeline(ctx context.Context, lyrics *LyricsData) (string, error) {
+	chatAI, err := NewOpenAIClient()
+	// llmModel := "claude-3-5-sonnet-20240620"
+	// maxTokens := 8192
+	llmModel := "gpt-4o-2024-08-06"
+	maxTokens := 8192
+	temperature := float32(0.75)
+
+	if err != nil {
+		log.Println(err)
+	}
+
 	messages := []Message{
 		&UserMessage{`**Instructions**:
 
-1. **Read through the Dialogues and the SRT File**: Understand the flow and structure of both documents.
+1. **Read through the Dialogues and the SRT file**: Understand the flow and structure of both documents.
 
 2. **Identify Key Phrases**: For each line in the dialogues, pick out key phrases or unique words that will help you match the dialogues to the SRT content.
 
-3. **Match the Dialogues to the SRT Content**: Begin with the first line of the SRT file and try to match it with the dialogues using the key phrases you've identified. Should through every line of SRT. and also must not merge or skip the SRT lines in this process.
+3. **Match the Dialogues to the SRT Content**: Begin with the first line of the SRT file and try to match it with the dialogues using the key phrases you've identified. Should through every line of SRT. and also must avoid to skip the SRT lines in this process.
 
 4. **Document Each Match**: When you find a match, note the sequence number, timing from the SRT file, and both versions of the dialogues for comparison.
 
@@ -93,9 +105,10 @@ Running free, without a care
 	option := ComplectionOption{
 		Model:     llmModel,
 		StopWords: []string{"</Summary>"},
+		MaxTokens: &maxTokens,
 	}
 
-	option.SetTemperature(0.50)
+	option.SetTemperature(temperature)
 
 	response, err := chatAI.TextComplete(ctx, messages, option)
 	if err != nil {

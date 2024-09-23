@@ -222,8 +222,8 @@ github.com/kylelemons/godebug v1.1.0 h1:RPNrshWIDI6G2gRW9EHilWtl7Z6Sb1BR0xunSBf0
 github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
 github.com/labstack/echo/v5 v5.0.0-20230722203903-ec5b858dab61 h1:FwuzbVh87iLiUQj1+uQUsuw9x5t9m5n5g7rG7o4svW4=
 github.com/labstack/echo/v5 v5.0.0-20230722203903-ec5b858dab61/go.mod h1:paQfF1YtHe+GrGg5fOgjsjoCX/UKDr9bc1DoWpZfns8=
-github.com/liushuangls/go-anthropic v1.6.0 h1:8hDEn/EJkeerOFwnQ10efTlRIU6VO+IxE6u6IinphBg=
-github.com/liushuangls/go-anthropic v1.6.0/go.mod h1:sUg9f/ZHoia6Nc8zoNvT7+KavHwMq2eL3VY1Mgf6I7Y=
+github.com/liushuangls/go-anthropic/v2 v2.8.0 h1:0zH2jDNycbrlszxnLrG+Gx8vVT0yJAPWU4s3ZTkWzgI=
+github.com/liushuangls/go-anthropic/v2 v2.8.0/go.mod h1:8BKv/fkeTaL5R9R9bGkaknYBueyw2WxY20o7bImbOek=
 github.com/mattn/go-colorable v0.1.2/go.mod h1:U0ppj6V5qS13XJ6of8GYAs25YV2eR4EVcfRqFIhoBtE=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
 github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovkB8vQcUbaXHg=

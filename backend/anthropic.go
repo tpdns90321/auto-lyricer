@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/liushuangls/go-anthropic"
+	"github.com/liushuangls/go-anthropic/v2"
 )
 
 type AnthropicClient struct {
@@ -20,7 +20,7 @@ func NewAnthrophicClient() (*AnthropicClient, error) {
 		return nil, errors.New("ANTHROPIC_API_KEY is not set")
 	}
 
-	return &AnthropicClient{anthropic.NewClient(apiKey)}, nil
+	return &AnthropicClient{anthropic.NewClient(apiKey, anthropic.WithBetaVersion(anthropic.BetaMaxTokens35Sonnet20240715))}, nil
 }
 
 func (c *AnthropicClient) TextComplete(ctx context.Context, messages []Message, option ComplectionOption) (string, error) {
@@ -39,11 +39,12 @@ func (c *AnthropicClient) TextComplete(ctx context.Context, messages []Message, 
 	}
 
 	if option.MaxTokens == nil {
-		return "", errors.New("Anthrophic Error: MaxTokens is required")
+		option.MaxTokens = new(int)
+		*option.MaxTokens = 4096
 	}
 
 	response, err := c.Client.CreateMessages(ctx, anthropic.MessagesRequest{
-		Model:         option.Model,
+		Model:         anthropic.Model(option.Model),
 		System:        option.SystemPrompt,
 		Messages:      inputs,
 		StopSequences: option.StopWords,
