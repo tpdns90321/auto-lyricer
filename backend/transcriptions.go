@@ -197,6 +197,8 @@ func transcriptionsPipelineWorker(app *pocketbase.PocketBase) {
 				return
 			}
 
+			os.WriteFile("/tmp/"+videoID+"-vocals.mp3", vocals, 0644)
+
 			transcriptionRecord.Transcription = data
 		}()
 

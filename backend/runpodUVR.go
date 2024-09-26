@@ -83,7 +83,7 @@ func (client *RunpodUVRClient) extractOnlyVocal(_ context.Context, file []byte) 
 	responseBodyBinary, err := io.ReadAll(res.Body)
 	if err != nil || res.StatusCode != http.StatusOK {
 		return "", errors.New(
-			fmt.Sprintf("Invalid response: %s %d", err.Error(), res.StatusCode))
+			fmt.Sprintf("Invalid response: %s", err.Error()))
 	}
 
 	var responseBody RunpodUVRResponse

@@ -7,11 +7,9 @@ import (
 
 func syncPipeline(ctx context.Context, lyrics *LyricsData) (string, error) {
 	chatAI, err := NewOpenAIClient()
-	// llmModel := "claude-3-5-sonnet-20240620"
-	// maxTokens := 8192
 	llmModel := "gpt-4o-2024-08-06"
-	maxTokens := 8192
-	temperature := float32(0.75)
+	maxTokens := 16384
+	temperature := float32(0.6)
 
 	if err != nil {
 		log.Println(err)

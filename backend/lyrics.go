@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"strings"
 
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
@@ -13,6 +14,7 @@ import (
 type LyricsData struct {
 	TranscriptionData *TranscriptionData `json:"transcription"`
 	Plain             string             `json:"plain"`
+	Debug             string             `json:"debug"`
 	Srt               string             `json:"srt"`
 	Language          string             `json:"language"`
 	Referenced        *LyricsData        `json:"referenced"`
@@ -41,7 +43,6 @@ func convertRecordToLyrics(app *pocketbase.PocketBase, record *models.Record) (*
 			return nil, err
 		}
 
-		log.Println("filterTranscription", filterTranscription[0])
 		transcription, err := convertRecordToTranscription(app, filterTranscription[0])
 		if err != nil {
 			return nil, err
@@ -49,11 +50,10 @@ func convertRecordToLyrics(app *pocketbase.PocketBase, record *models.Record) (*
 
 		lyrics.Transcription = transcription
 		lyrics.TranscriptionData = transcription.TranscriptionData
-	} else {
-		return nil, errors.New("Invalid video record")
 	}
 
 	lyrics.Plain = lyrics.GetString("plain")
+	lyrics.Debug = lyrics.GetString("debug")
 	lyrics.Srt = lyrics.GetString("srt")
 	lyrics.Language = lyrics.GetString("language")
 	if referencedLyricsId := record.GetString("referenced"); referencedLyricsId != "" {
@@ -72,8 +72,11 @@ func convertRecordToLyrics(app *pocketbase.PocketBase, record *models.Record) (*
 }
 
 func (lyrics *LyricsPocketBase) Update() {
-	lyrics.Set("transcription", lyrics.Transcription.Record.Id)
+	if lyrics.Transcription != nil {
+		lyrics.Set("transcription", lyrics.Transcription.Record.Id)
+	}
 	lyrics.Set("plain", lyrics.Plain)
+	lyrics.Set("debug", lyrics.Debug)
 	lyrics.Set("srt", lyrics.Srt)
 	lyrics.Set("language", lyrics.Language)
 	if lyrics.Referenced != nil {
@@ -99,8 +102,23 @@ func lyricsPipelineWorker(app *pocketbase.PocketBase) {
 			continue
 		}
 
-		if lyricsRecord.Plain != "" && lyricsRecord.Srt == "" {
-			if srt, err := syncPipeline(ctx, lyricsRecord.LyricsData); err == nil {
+		log.Println(lyricsRecord.Referenced)
+		if lyricsRecord.Referenced == nil && lyricsRecord.Transcription != nil && lyricsRecord.Plain != "" && lyricsRecord.Srt == "" {
+			if response, err := syncPipeline(ctx, lyricsRecord.LyricsData); err == nil {
+				dividedResponse := strings.Split(response, "<Summary>")
+				lyricsRecord.Debug = dividedResponse[0]
+				if len(dividedResponse) > 1 {
+					lyricsRecord.Srt = dividedResponse[1]
+				}
+				lyricsRecord.Update()
+			} else {
+				log.Println(err)
+			}
+		} else if lyricsRecord.Referenced != nil && lyricsRecord.Language != "" && lyricsRecord.Transcription == nil && lyricsRecord.Plain == "" && lyricsRecord.Srt == "" {
+			if response, err := translatePipeline(ctx, lyricsRecord.LyricsData); err == nil {
+				srt := strings.TrimPrefix(response, "```"+`xml
+`)
+				srt = strings.TrimPrefix(srt, "<Result>")
 				lyricsRecord.Srt = srt
 				lyricsRecord.Update()
 			} else {
