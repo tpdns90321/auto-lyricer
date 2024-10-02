@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"errors"
@@ -85,6 +86,10 @@ func transcriptionsPipelineWorker(app *pocketbase.PocketBase) {
 	if err != nil {
 		log.Println(err)
 	}
+	//  whisperClient, err := initializeRealtimeGPT4oClient()
+	//  if err != nil {
+	//    log.Println(err)
+	//  }
 	uvrClient, err := initializeRunpodUVRClient()
 	if err != nil {
 		log.Println(err)
@@ -132,49 +137,37 @@ func transcriptionsPipelineWorker(app *pocketbase.PocketBase) {
 			}()
 
 			formats := video.Formats.Quality("medium")
-			videoFilePath := "/tmp/" + videoID + ".mp4"
-			musicFilePath := "/tmp/" + videoID + ".mp3"
+
+			musicFile := []byte{}
 
 			// iterate video quality for finding video that include audio
 			for _, format := range formats {
 				youtubeStream, _, err := youtubeClient.GetStreamContext(ctx, video, &format)
-
-				videoFile, err := os.Create(videoFilePath)
-				defer func() {
-					videoFile.Close()
-					os.Remove(videoFilePath)
-				}()
 				if err != nil {
 					log.Println(err)
 					continue
 				}
 
-				io.Copy(videoFile, youtubeStream)
-				err = ffmpeg.Input(videoFilePath).Output(musicFilePath).Run()
+				musicStream := bytes.NewBuffer(nil)
+
+				err = ffmpeg.
+					Input("pipe:", ffmpeg.KwArgs{"format": "mp4"}).
+					WithInput(youtubeStream).
+					Output("pipe:", ffmpeg.KwArgs{"format": "mp3"}).
+					WithOutput(musicStream, os.Stdout).
+					Run()
+
 				if err != nil {
 					log.Println(err)
 					continue
 				}
+
+				musicFile, _ = io.ReadAll(musicStream)
 
 				break
 			}
 
-			musicFile, err := os.Open(musicFilePath)
-			defer func() {
-				musicFile.Close()
-				os.Remove(musicFilePath)
-			}()
-			if err != nil {
-				done <- err
-				return
-			}
-			music, err := io.ReadAll(musicFile)
-			if err != nil {
-				done <- err
-				return
-			}
-
-			vocalsBase64, err := uvrClient.extractOnlyVocal(ctx, music)
+			vocalsBase64, err := uvrClient.extractOnlyVocal(ctx, musicFile)
 			if err != nil {
 				done <- err
 				return

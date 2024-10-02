@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-const translatorTemplate = `Translate the provided lyrics into %s, but do not translate any foreign words present in the original lyrics; leave them as is. Format your response as SRT by separating each component in this order: number, timing, original lyrics line, its English pronunciation, and the Korean translation. Make sure each trio is clearly separated. Write SRT into 'Result' XML tag. Here are the lyrics:
+const translatorTemplate = `Translate the provided lyrics into %s, but do not translate any foreign words present in the original lyrics; leave them as is. Format your response as SRT by separating each component in this order: number, timing, original lyrics line, its English pronunciation, and the %s translation. Make sure each trio is clearly separated. Write SRT into 'Result' XML tag. Here are the lyrics:
 %s`
 
 func translatePipeline(ctx context.Context, lyrics *LyricsData) (string, error) {
@@ -22,7 +22,7 @@ func translatePipeline(ctx context.Context, lyrics *LyricsData) (string, error) 
 	}
 
 	messages := []Message{
-		&UserMessage{fmt.Sprintf(translatorTemplate, language, lyrics.Referenced.Srt)},
+		&UserMessage{fmt.Sprintf(translatorTemplate, language, language, lyrics.Referenced.Srt)},
 		&AssistatntMessage{"<Result>"},
 	}
 

@@ -5,6 +5,8 @@ go 1.21.7
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/ai/azopenai v0.5.0
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.10.0
+	github.com/emvi/iso-639-1 v1.1.0
+	github.com/gorilla/websocket v1.5.3
 	github.com/kkdai/youtube/v2 v2.10.1
 	github.com/liushuangls/go-anthropic/v2 v2.8.0
 	github.com/pocketbase/pocketbase v0.22.4
@@ -41,7 +43,6 @@ require (
 	github.com/domodwyer/mailyak/v3 v3.6.2 // indirect
 	github.com/dop251/goja v0.0.0-20240220182346-e401ed450204 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/emvi/iso-639-1 v1.1.0 // indirect
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/ganigeorgiev/fexpr v0.4.0 // indirect
