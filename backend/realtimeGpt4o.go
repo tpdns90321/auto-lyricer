@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -12,9 +13,6 @@ import (
 	"net/url"
 	"os"
 
-	//	"encoding/json"
-	// "io"
-	//	"net/http"
 	"github.com/gorilla/websocket"
 	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
@@ -25,8 +23,7 @@ type RealtimeGPT4oClient struct {
 
 type RealtimeGPT4oTranscriptionRequestContent struct {
 	Type  string  `json:"type"`
-	Audio *string `json:"audio"`
-	Text  *string `json:"text"`
+	Audio string `json:"audio"`
 }
 
 type RealtimeGPT4oTranscriptionRequestItem struct {
@@ -35,10 +32,14 @@ type RealtimeGPT4oTranscriptionRequestItem struct {
 	Content []RealtimeGPT4oTranscriptionRequestContent `json:"content"`
 }
 
-type RealtimeGPT4oTranscriptionRequestBody struct {
+type RealtimeGPT4oTranscriptionRequestItemCreate struct {
 	Type     string                                    `json:"type"`
-	Item     *RealtimeGPT4oTranscriptionRequestItem    `json:"item"`
-	Response *RealtimeGPT4oTranscriptionResponseConfig `json:"response"`
+	Item     RealtimeGPT4oTranscriptionRequestItem    `json:"item"`
+}
+
+type RealtimeGPT4oTranscriptionRequestResponseCreate struct {
+	Type     string                                    `json:"type"`
+	Response RealtimeGPT4oTranscriptionResponseConfig `json:"response"`
 }
 
 type RealtimeGPT4oTranscriptionResponseConfig struct {
@@ -46,13 +47,22 @@ type RealtimeGPT4oTranscriptionResponseConfig struct {
 	Instructions *string  `json:"instructions"`
 }
 
+type RealtimeGPT4oTranscriptionResponseContent struct {
+	Type  string  `json:"type"`
+	Text string `json:"text"`
+}
+
 type RealtimeGPT4oTranscriptionResponseOutput struct {
-	Output []RealtimeGPT4oTranscriptionRequestContent `json:"output"`
+	Content []RealtimeGPT4oTranscriptionResponseContent `json:"content"`
+}
+
+type RealtimeGPT4oTranscriptionResponseOutputList struct {
+	Output []RealtimeGPT4oTranscriptionResponseOutput `json:"output"`
 }
 
 type RealtimeGPT4oTranscriptionResponse struct {
 	Type     string                                   `json:"type"`
-	Response RealtimeGPT4oTranscriptionResponseOutput `json:"response"`
+	Response RealtimeGPT4oTranscriptionResponseOutputList `json:"response"`
 }
 
 func initializeRealtimeGPT4oClient() (*RealtimeGPT4oClient, error) {
@@ -108,27 +118,28 @@ func (client *RealtimeGPT4oClient) Transcription(_ context.Context, file []byte,
 {hh:mm:ss,mmm start time} --> {hh:mm:ss,mmm end time}
 {transcription only voice}`
 		base64ConvertedString := string(base64Converted)
-		err = conn.WriteJSON(RealtimeGPT4oTranscriptionRequestBody{
+    itemCreate := RealtimeGPT4oTranscriptionRequestItemCreate{
 			Type: "conversation.item.create",
-			Item: &RealtimeGPT4oTranscriptionRequestItem{
+			Item: RealtimeGPT4oTranscriptionRequestItem{
 				Type: "message",
 				Role: "user",
 				Content: []RealtimeGPT4oTranscriptionRequestContent{
 					{
 						Type:  "input_audio",
-						Audio: &base64ConvertedString,
+						Audio: base64ConvertedString,
 					},
 				},
 			},
-		})
+		}
+		err = conn.WriteJSON(itemCreate)
 		if err != nil {
 			errDone <- err
 			return
 		}
 
-		err = conn.WriteJSON(RealtimeGPT4oTranscriptionRequestBody{
+		err = conn.WriteJSON(RealtimeGPT4oTranscriptionRequestResponseCreate{
 			Type: "response.create",
-			Response: &RealtimeGPT4oTranscriptionResponseConfig{
+			Response: RealtimeGPT4oTranscriptionResponseConfig{
 				Modalities:   []string{"text"},
 				Instructions: &instructions,
 			},
@@ -140,7 +151,14 @@ func (client *RealtimeGPT4oClient) Transcription(_ context.Context, file []byte,
 
 		for {
 			var response RealtimeGPT4oTranscriptionResponse
-			err := conn.ReadJSON(&response)
+			_, responseText, err := conn.ReadMessage()
+			if err != nil {
+				errDone <- err
+				return
+			}
+      log.Println(string(responseText))
+
+      err = json.Unmarshal(responseText, &response)
 			if err != nil {
 				errDone <- err
 				return
@@ -156,7 +174,8 @@ func (client *RealtimeGPT4oClient) Transcription(_ context.Context, file []byte,
 	select {
 	case response := <-done:
 		Outputs := response.Response.Output
-		return *Outputs[len(Outputs)-1].Text, nil
+    log.Println(response)
+		return Outputs[0].Content[0].Text, nil
 	case err := <-errDone:
 		return "", err
 	}

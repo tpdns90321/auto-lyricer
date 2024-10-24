@@ -86,10 +86,6 @@ func transcriptionsPipelineWorker(app *pocketbase.PocketBase) {
 	if err != nil {
 		log.Println(err)
 	}
-	//  whisperClient, err := initializeRealtimeGPT4oClient()
-	//  if err != nil {
-	//    log.Println(err)
-	//  }
 	uvrClient, err := initializeRunpodUVRClient()
 	if err != nil {
 		log.Println(err)

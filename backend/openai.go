@@ -53,40 +53,48 @@ func (c *OpenAIClient) TextComplete(ctx context.Context, messages []Message, opt
 	inputs := make([]azopenai.ChatRequestMessageClassification, len(messages)+1)
 
 	inputs[0] = &azopenai.ChatRequestSystemMessage{Content: &option.SystemPrompt}
-
 	for i, m := range messages {
-		msg := &inputs[i+1]
+	  msg := &inputs[i+1]
 
-		switch m.(type) {
-		case *AssistatntMessage:
-			*msg = &azopenai.ChatRequestAssistantMessage{Content: m.Content()}
-		case *UserMessage:
-			*msg = &azopenai.ChatRequestUserMessage{Content: azopenai.NewChatRequestUserMessageContent(*m.Content())}
-		}
-	}
+    switch m.(type) {
+      case *AssistatntMessage:
+	      *msg = &azopenai.ChatRequestAssistantMessage{Content: m.Content()}
+      case *UserMessage:
+	      *msg = &azopenai.ChatRequestUserMessage{Content: azopenai.NewChatRequestUserMessageContent(*m.Content())}
+    }
+  }
 
-	var maxTokens *int32 = nil
-	if option.MaxTokens != nil {
-		originalMaxTokens := *option.MaxTokens
-		convertedMaxTokens := int32(originalMaxTokens)
-		maxTokens = &convertedMaxTokens
-	}
+  responseAggreation := ""
 
-	response, err := c.Client.GetChatCompletions(ctx, azopenai.ChatCompletionsOptions{
-		Messages:       inputs,
-		Stop:           option.StopWords,
-		MaxTokens:      maxTokens,
-		Temperature:    option.Temperature,
-		TopP:           option.TopP,
-		DeploymentName: &option.Model,
-	}, nil)
+  for {
+	  var maxTokens *int32 = nil
+	  if option.MaxTokens != nil {
+		  originalMaxTokens := *option.MaxTokens
+		  convertedMaxTokens := int32(originalMaxTokens)
+		  maxTokens = &convertedMaxTokens
+	  }
 
-	if err != nil {
-		return "", err
-	}
+	  response, err := c.Client.GetChatCompletions(ctx, azopenai.ChatCompletionsOptions{
+		  Messages:       inputs,
+		  Stop:           option.StopWords,
+		  MaxTokens:      maxTokens,
+		  Temperature:    option.Temperature,
+		  TopP:           option.TopP,
+		  DeploymentName: &option.Model,
+	  }, nil)
 
-	log.Println(response.Choices[0].Message.Content)
-	log.Println(response.SystemFingerprint)
+	  if err != nil {
+		  return "", err
+	  }
 
-	return *response.Choices[0].Message.Content, nil
+    responseAggreation += *response.Choices[0].Message.Content
+    if *response.Choices[0].FinishReason != azopenai.CompletionsFinishReasonTokenLimitReached {
+      return responseAggreation, nil
+    }
+
+	  log.Println(response.Choices[0].Message.Content)
+	  log.Println(response.SystemFingerprint)
+
+    inputs = append(inputs, &azopenai.ChatRequestAssistantMessage{Content: response.Choices[0].Message.Content})
+  }
 }
