@@ -54,47 +54,47 @@ func (c *OpenAIClient) TextComplete(ctx context.Context, messages []Message, opt
 
 	inputs[0] = &azopenai.ChatRequestSystemMessage{Content: &option.SystemPrompt}
 	for i, m := range messages {
-	  msg := &inputs[i+1]
+		msg := &inputs[i+1]
 
-    switch m.(type) {
-      case *AssistatntMessage:
-	      *msg = &azopenai.ChatRequestAssistantMessage{Content: m.Content()}
-      case *UserMessage:
-	      *msg = &azopenai.ChatRequestUserMessage{Content: azopenai.NewChatRequestUserMessageContent(*m.Content())}
-    }
-  }
+		switch m.(type) {
+		case *AssistatntMessage:
+			*msg = &azopenai.ChatRequestAssistantMessage{Content: m.Content()}
+		case *UserMessage:
+			*msg = &azopenai.ChatRequestUserMessage{Content: azopenai.NewChatRequestUserMessageContent(*m.Content())}
+		}
+	}
 
-  responseAggreation := ""
+	responseAggreation := ""
 
-  for {
-	  var maxTokens *int32 = nil
-	  if option.MaxTokens != nil {
-		  originalMaxTokens := *option.MaxTokens
-		  convertedMaxTokens := int32(originalMaxTokens)
-		  maxTokens = &convertedMaxTokens
-	  }
+	for {
+		var maxTokens *int32 = nil
+		if option.MaxTokens != nil {
+			originalMaxTokens := *option.MaxTokens
+			convertedMaxTokens := int32(originalMaxTokens)
+			maxTokens = &convertedMaxTokens
+		}
 
-	  response, err := c.Client.GetChatCompletions(ctx, azopenai.ChatCompletionsOptions{
-		  Messages:       inputs,
-		  Stop:           option.StopWords,
-		  MaxTokens:      maxTokens,
-		  Temperature:    option.Temperature,
-		  TopP:           option.TopP,
-		  DeploymentName: &option.Model,
-	  }, nil)
+		response, err := c.Client.GetChatCompletions(ctx, azopenai.ChatCompletionsOptions{
+			Messages:       inputs,
+			Stop:           option.StopWords,
+			MaxTokens:      maxTokens,
+			Temperature:    option.Temperature,
+			TopP:           option.TopP,
+			DeploymentName: &option.Model,
+		}, nil)
 
-	  if err != nil {
-		  return "", err
-	  }
+		if err != nil {
+			return "", err
+		}
 
-    responseAggreation += *response.Choices[0].Message.Content
-    if *response.Choices[0].FinishReason != azopenai.CompletionsFinishReasonTokenLimitReached {
-      return responseAggreation, nil
-    }
+		responseAggreation += *response.Choices[0].Message.Content
+		if *response.Choices[0].FinishReason != azopenai.CompletionsFinishReasonTokenLimitReached {
+			return responseAggreation, nil
+		}
 
-	  log.Println(response.Choices[0].Message.Content)
-	  log.Println(response.SystemFingerprint)
+		log.Println(response.Choices[0].Message.Content)
+		log.Println(response.SystemFingerprint)
 
-    inputs = append(inputs, &azopenai.ChatRequestAssistantMessage{Content: response.Choices[0].Message.Content})
-  }
+		inputs = append(inputs, &azopenai.ChatRequestAssistantMessage{Content: response.Choices[0].Message.Content})
+	}
 }

@@ -6,41 +6,36 @@ import (
 )
 
 func syncPipeline(ctx context.Context, lyrics *LyricsData) (string, error) {
-//	chatAI, err := NewAnthrophicClient()
-//  llmModel := "claude-3-5-sonnet-20241022"
-//	maxTokens := 8192
-//  temperature := float32(0.5)
+	// claude-3-5-sonnet-20241022
+	//	chatAI, err := NewAnthrophicClient()
+	//  llmModel := "claude-3-5-sonnet-20241022"
+	//	maxTokens := 8192
+	//  temperature := float32(0.5)
 
-	chatAI, err := NewOpenAIClient()
-  llmModel := "gpt-4o-2024-08-06"
-	maxTokens := 16384
-	temperature := float32(0.4)
+	// openai GPT-4o
+	//	chatAI, err := NewOpenAIClient()
+	//	llmModel := "gpt-4o-2024-08-06"
+	//	maxTokens := 16384
+	//	temperature := float32(0.4)
+	chatAI, err := NewGeminiClient()
+	llmModel := "gemini-1.5-flash-002"
+	maxTokens := 8192
+	temperature := float32(0.2)
 
 	if err != nil {
 		log.Println(err)
 	}
 
 	messages := []Message{
-		&UserMessage{`**Instructions**:
+		&UserMessage{`Repeat SRT through by each sequence with matching between each sequence and similar line of dialogues.
+After repeating SRT, AI will summarize result as SRT with replaced dialogues.
 
-1. **Read through the Dialogues and the SRT file**: Understand the flow and structure of both documents.
-
-2. **Identify Key Phrases**: For each line in the dialogues, pick out key phrases or unique words that will help you match the dialogues to the SRT content.
-
-3. **Match the Dialogues to the SRT Content**: Begin with the first line of the SRT file and try to match it with the dialogues using the key phrases you've identified. Should through every line of SRT. and also must avoid to skip the SRT lines in this process.
-
-4. **Document Each Match**: When you find a match, note the sequence number, timing from the SRT file, and both versions of the dialogues for comparison.
-
-5. **Summarize Your Findings**: After going through all the dialogues and SRT content, summarize the SRT timings and its dialogues for all matched lines. Ensure summary should follow SRT format.
-
-**Dialogues Example**:
+<Example>
 <Dialogues>
 Chasing sunsets, on the horizon
 Feel the breeze, in my hair
 Running free, without a care
 </Dialogues>
-
-**SRT Example**:
 <SRT>
 1
 00:00:00,000 --> 00:00:05,000
@@ -59,7 +54,6 @@ wind in my hair
 Running freely, without care
 </SRT>
 
-**Result Example**:
 <Result>
 <Matching>
 1
@@ -96,19 +90,15 @@ Feel the breeze, in my hair
 Running free, without a care
 </Summary>
 </Result>
-`},
-		&AssistatntMessage{"Thank you for the instructions and examples. Please provide me with the dialogues and the SRT file so that I can begin the matching process as outlined."},
-		&UserMessage{"<Dialogues>" + lyrics.Plain + "</Dialogues><SRT>" + lyrics.TranscriptionData.Transcription + "</SRT>"},
-		&AssistatntMessage{`Thank you for providing the dialogues and SRT file. I will follow the instructions to match the dialogues with the SRT content and provide a summary.
+</Example>
 
-<Result>
-<Matching>`},
+` + "<Dialogues>\n" + lyrics.Plain + "\n</Dialogues>\n<SRT>\n" + lyrics.TranscriptionData.Transcription + "\n</SRT>\n\n```xml\n<Result>"},
 	}
 
 	option := ComplectionOption{
 		Model:     llmModel,
-		StopWords: []string{"</Summary>"},
 		MaxTokens: &maxTokens,
+		StopWords: []string{"</Summary>"},
 	}
 
 	option.SetTemperature(temperature)

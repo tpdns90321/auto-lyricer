@@ -11,10 +11,15 @@ const translatorTemplate = `Translate the provided lyrics into %s, but do not tr
 %s`
 
 func translatePipeline(ctx context.Context, lyrics *LyricsData) (string, error) {
-	chatAI, err := NewOpenAIClient()
-	llmModel := "gpt-4o-mini-2024-07-18"
-	maxTokens := 16384
-	temperature := float32(0.6)
+	//	chatAI, err := NewOpenAIClient()
+	//	llmModel := "gpt-4o-mini-2024-07-18"
+	//	maxTokens := 16384
+
+	chatAI, err := NewGeminiClient()
+	llmModel := "gemini-1.5-flash-002"
+	maxTokens := 8192
+
+	temperature := float32(0.2)
 	language := iso6391.Name(lyrics.Language)
 
 	if err != nil {
