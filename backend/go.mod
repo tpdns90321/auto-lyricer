@@ -8,6 +8,7 @@ require (
 	github.com/emvi/iso-639-1 v1.1.0
 	github.com/google/generative-ai-go v0.18.0
 	github.com/gorilla/websocket v1.5.3
+	github.com/joho/godotenv v1.3.0
 	github.com/kkdai/youtube/v2 v2.10.1
 	github.com/liushuangls/go-anthropic/v2 v2.8.0
 	github.com/pocketbase/pocketbase v0.22.4

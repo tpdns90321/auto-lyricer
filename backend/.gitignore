@@ -1,3 +1,4 @@
 pb_data
 backend
 vendor
+.env
