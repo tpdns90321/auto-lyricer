@@ -132,41 +132,49 @@ func transcriptionsPipelineWorker(app *pocketbase.PocketBase) {
 				done <- nil
 			}()
 
-			formats := video.Formats.Quality("medium")
+			var vocalsBase64 string
+			if transcriptionRecord.VideoData.Vocal == "" {
+				formats := video.Formats.Quality("medium")
 
-			musicFile := []byte{}
+				musicFile := []byte{}
 
-			// iterate video quality for finding video that include audio
-			for _, format := range formats {
-				youtubeStream, _, err := youtubeClient.GetStreamContext(ctx, video, &format)
-				if err != nil {
-					log.Println(err)
-					continue
+				// iterate video quality for finding video that include audio
+				for _, format := range formats {
+					youtubeStream, _, err := youtubeClient.GetStreamContext(ctx, video, &format)
+					if err != nil {
+						log.Println(err)
+						continue
+					}
+
+					musicStream := bytes.NewBuffer(nil)
+
+					err = ffmpeg.
+						Input("pipe:", ffmpeg.KwArgs{"format": "mp4"}).
+						WithInput(youtubeStream).
+						Output("pipe:", ffmpeg.KwArgs{"format": "mp3"}).
+						WithOutput(musicStream, os.Stdout).
+						Run()
+
+					if err != nil {
+						log.Println(err)
+						continue
+					}
+
+					musicFile, _ = io.ReadAll(musicStream)
+
+					break
 				}
 
-				musicStream := bytes.NewBuffer(nil)
-
-				err = ffmpeg.
-					Input("pipe:", ffmpeg.KwArgs{"format": "mp4"}).
-					WithInput(youtubeStream).
-					Output("pipe:", ffmpeg.KwArgs{"format": "mp3"}).
-					WithOutput(musicStream, os.Stdout).
-					Run()
-
+				vocalsBase64, err = uvrClient.extractOnlyVocal(ctx, musicFile)
 				if err != nil {
-					log.Println(err)
-					continue
+					done <- err
+					return
 				}
-
-				musicFile, _ = io.ReadAll(musicStream)
-
-				break
-			}
-
-			vocalsBase64, err := uvrClient.extractOnlyVocal(ctx, musicFile)
-			if err != nil {
-				done <- err
-				return
+				transcriptionRecord.VideoData.Vocal = vocalsBase64
+				transcriptionRecord.Video.Update()
+				app.Dao().SaveRecord(transcriptionRecord.Video.Record)
+			} else {
+				vocalsBase64 = transcriptionRecord.VideoData.Vocal
 			}
 
 			vocals := make([]byte, base64.StdEncoding.DecodedLen(len(vocalsBase64)))
