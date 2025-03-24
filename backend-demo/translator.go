@@ -7,19 +7,20 @@ import (
 	"log"
 )
 
-const translatorTemplate = `Translate the provided lyrics into %s, but do not translate any foreign words present in the original lyrics; leave them as is. Format your response as SRT by separating each component in this order: number, timing, original lyrics line, its English pronunciation, and the %s translation. Make sure each trio is clearly separated. Write SRT into 'Result' XML tag. Here are the lyrics:
+const translatorTemplate = `Translate the provided lyrics into %s, but do not translate any foreign words present in the original lyrics; leave them as is. Format your response as SRT by separating each component in this order: number, timing, original lyrics line, its English pronunciation, and the %s translation. Make sure each quintet is clearly separated. Write SRT into 'Result' XML tag. Here are the lyrics:
 %s`
 
 func translatePipeline(ctx context.Context, lyrics *LyricsData) (string, error) {
-	//	chatAI, err := NewOpenAIClient()
-	//	llmModel := "gpt-4o-mini-2024-07-18"
-	//	maxTokens := 16384
+	chatAI, err := NewOpenAIClient()
+	llmModel := "gpt-4o-mini-2024-07-18"
+	maxTokens := 16384
 
-	chatAI, err := NewGeminiClient()
-	llmModel := "gemini-1.5-flash-002"
-	maxTokens := 8192
+	//chatAI, err := NewGeminiClient()
+	//chatAI, err := NewGeminiOpenaiClient()
+	//llmModel := "gemini-1.5-flash-002"
+	//maxTokens := 8192
 
-	temperature := float32(0.2)
+	temperature := float32(0.6)
 	language := iso6391.Name(lyrics.Language)
 
 	if err != nil {

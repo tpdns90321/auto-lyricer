@@ -17,15 +17,16 @@ type RunpodWhisperClient struct {
 }
 
 type RunpodWhisperTranscriptionRequestInput struct {
-	Audio         *string `json:"audio"`
-	AudioBase64   *string `json:"audio_base64"`
-	Model         string  `json:"model"`
-	Transcription string  `json:"transcription"`
-	Translate     bool    `json:"translate"`
-	Language      *string `json:"language"`
-	Temperature   float32 `json:"temperature"`
-	BestOf        int     `json:"best_of"`
-	BeamSize      int     `json:"beam_size"`
+	Audio                   *string `json:"audio"`
+	AudioBase64             *string `json:"audio_base64"`
+	Model                   string  `json:"model"`
+	Transcription           string  `json:"transcription"`
+	Translate               bool    `json:"translate"`
+	Language                *string `json:"language"`
+	Temperature             float32 `json:"temperature"`
+	BestOf                  int     `json:"best_of"`
+	BeamSize                int     `json:"beam_size"`
+	ConditionOnPreviousText bool    `json:"condition_on_previous_text"`
 }
 
 type RunpodWhisperTranscriptionRequestBody struct {
@@ -61,13 +62,14 @@ func (client *RunpodWhisperClient) Transcription(_ context.Context, file []byte,
 	audioBase64 := base64.StdEncoding.EncodeToString(file)
 	requestBody := &RunpodWhisperTranscriptionRequestBody{
 		Input: RunpodWhisperTranscriptionRequestInput{
-			AudioBase64:   &audioBase64,
-			Model:         "large-v3",
-			Transcription: "srt",
-			Temperature:   0.6,
-			BestOf:        5,
-			BeamSize:      10,
-			Language:      option.Language,
+			AudioBase64:             &audioBase64,
+			Model:                   "large-v3",
+			Transcription:           "srt",
+			Temperature:             .8,
+			BestOf:                  3,
+			BeamSize:                6,
+			Language:                option.Language,
+			ConditionOnPreviousText: false,
 		},
 	}
 

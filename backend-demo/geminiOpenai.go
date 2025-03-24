@@ -9,47 +9,25 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 )
 
-type OpenAIClient struct {
+type GeminiOpenaiClient struct {
 	*azopenai.Client
 }
 
-func intializeOpenAIClient() (*OpenAIClient, error) {
-	openaiCredential := azcore.NewKeyCredential(os.Getenv(("OPENAI_API_KEY")))
-	client, err := azopenai.NewClientForOpenAI("https://api.openai.com/v1", openaiCredential, nil)
+func intializeGeminiOpenaiClient() (*GeminiOpenaiClient, error) {
+	openaiCredential := azcore.NewKeyCredential(os.Getenv(("GEMINI_API_KEY")))
+	client, err := azopenai.NewClientForOpenAI("https://generativelanguage.googleapis.com/v1beta/", openaiCredential, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	return &OpenAIClient{Client: client}, nil
+	return &GeminiOpenaiClient{Client: client}, nil
 }
 
-func NewOpenAIClient() (*OpenAIClient, error) {
-	return intializeOpenAIClient()
+func NewGeminiOpenaiClient() (*GeminiOpenaiClient, error) {
+	return intializeGeminiOpenaiClient()
 }
 
-func (client *OpenAIClient) Transcription(ctx context.Context, file []byte) (string, error) {
-	whisperDeploymentName := "whisper-1"
-	responseFormat := azopenai.AudioTranscriptionFormatSrt
-	temperature := float32(0.5)
-
-	body := azopenai.AudioTranscriptionOptions{
-		File:           file,
-		DeploymentName: &whisperDeploymentName,
-		ResponseFormat: &responseFormat,
-		Temperature:    &temperature,
-	}
-
-	transcription, err := client.GetAudioTranscription(ctx, body, nil)
-
-	if err != nil {
-		empty := ""
-		return empty, err
-	}
-
-	return *transcription.Text, nil
-}
-
-func (c *OpenAIClient) TextComplete(ctx context.Context, messages []Message, option ComplectionOption) (string, error) {
+func (c *GeminiOpenaiClient) TextComplete(ctx context.Context, messages []Message, option ComplectionOption) (string, error) {
 	inputs := make([]azopenai.ChatRequestMessageClassification, len(messages)+1)
 
 	inputs[0] = &azopenai.ChatRequestSystemMessage{Content: &option.SystemPrompt}
@@ -67,17 +45,9 @@ func (c *OpenAIClient) TextComplete(ctx context.Context, messages []Message, opt
 	responseAggreation := ""
 
 	for {
-		var maxTokens *int32 = nil
-		if option.MaxTokens != nil {
-			originalMaxTokens := *option.MaxTokens
-			convertedMaxTokens := int32(originalMaxTokens)
-			maxTokens = &convertedMaxTokens
-		}
-
 		response, err := c.Client.GetChatCompletions(ctx, azopenai.ChatCompletionsOptions{
 			Messages:       inputs,
 			Stop:           option.StopWords,
-			MaxTokens:      maxTokens,
 			Temperature:    option.Temperature,
 			TopP:           option.TopP,
 			DeploymentName: &option.Model,
@@ -89,6 +59,7 @@ func (c *OpenAIClient) TextComplete(ctx context.Context, messages []Message, opt
 
 		responseAggreation += *response.Choices[0].Message.Content
 		if *response.Choices[0].FinishReason != azopenai.CompletionsFinishReasonTokenLimitReached {
+			log.Println(response.Choices[0].FinishReason)
 			return responseAggreation, nil
 		}
 

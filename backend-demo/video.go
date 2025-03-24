@@ -12,6 +12,8 @@ type VideoData struct {
 	Author        string `json:"author"`
 	Transcription string `json:"transcription"`
 	Language      string `json:"language"`
+	Vocal         string `json:"vocal"`
+	Instrumental  string `json:"instrumental"`
 }
 
 type VideoPocketBase struct {
@@ -34,6 +36,7 @@ func convertRecordToVideo(record *models.Record) (*VideoPocketBase, error) {
 	video.Author = video.GetString("author")
 	video.Transcription = video.GetString("transcription")
 	video.Language = video.GetString("language")
+	video.Vocal = video.GetString("vocal")
 
 	return video, nil
 }
@@ -44,4 +47,5 @@ func (video *VideoPocketBase) Update() {
 	video.Set("author", video.Author)
 	video.Set("transcription", video.Transcription)
 	video.Set("language", video.Language)
+	video.Set("vocal", video.Vocal)
 }

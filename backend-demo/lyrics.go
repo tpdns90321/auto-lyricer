@@ -105,11 +105,7 @@ func lyricsPipelineWorker(app *pocketbase.PocketBase) {
 		log.Println(lyricsRecord.Referenced)
 		if lyricsRecord.Referenced == nil && lyricsRecord.Transcription != nil && lyricsRecord.Plain != "" && lyricsRecord.Srt == "" {
 			if response, err := syncPipeline(ctx, lyricsRecord.LyricsData); err == nil {
-				dividedResponse := strings.Split(response, "<Summary>")
-				lyricsRecord.Debug = dividedResponse[0]
-				if len(dividedResponse) > 1 {
-					lyricsRecord.Srt = dividedResponse[1]
-				}
+				lyricsRecord.Srt = response
 				lyricsRecord.Update()
 			} else {
 				log.Println(err)

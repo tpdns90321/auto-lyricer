@@ -82,7 +82,7 @@ func (transcription *TranscriptionPocketBase) Update() {
 func transcriptionsPipelineWorker(app *pocketbase.PocketBase) {
 	transcriptionPipeline := make(chan *models.Record)
 
-	whisperClient, err := initializeRunpodWhisperClient()
+	whisperClient, err := NewOpenAIClient()
 	if err != nil {
 		log.Println(err)
 	}
