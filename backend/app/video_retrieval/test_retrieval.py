@@ -16,3 +16,4 @@ async def test_retrieval_video_info(retrieval: VideoRetrieval):
     assert video_info.video_id == "LHvYrn3FAgI"
     assert video_info.domain == "youtube.com"
     assert video_info.channel_id == "UC_aEa8K-EOJ3D6gOs7HcyNg"
+    assert video_info.duration_seconds == 182

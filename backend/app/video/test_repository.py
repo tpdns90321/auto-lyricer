@@ -1,5 +1,5 @@
 from .repository import VideoRepository
-from .dto import Video
+from .dto import SupportedPlatform, Video
 from app.database import AIOSqlite
 from app.video_retrieval import VideoInfo
 from app.video.exception import (
@@ -68,7 +68,7 @@ async def normal_video(normal_repository) -> Video:
 async def test_retrieval_video_normal(normal_video: Video):
     assert normal_video.instance_id == 1
     assert normal_video.video_id == "testestest"
-    assert normal_video.platform == "youtube"
+    assert normal_video.platform == SupportedPlatform.youtube
     assert normal_video.channel_id == "channel_id"
     assert normal_video.channel_name == "channel"
     assert normal_video.duration_seconds == 100
@@ -129,7 +129,7 @@ async def test_get_video_by_video_id_normal(
     normal_repository: VideoRepository, normal_video: Video
 ):
     result: Video | None = await normal_repository.get_video_by_video_id(
-        video_id=normal_video.video_id
+        platform=normal_video.platform, video_id=normal_video.video_id
     )
 
     assert result is not None
@@ -139,6 +139,8 @@ async def test_get_video_by_video_id_normal(
 
 @pytest.mark.asyncio
 async def test_get_video_by_video_id_not_found(normal_repository: VideoRepository):
-    result = await normal_repository.get_video_by_video_id(video_id="aaaaaaaaaaa")
+    result = await normal_repository.get_video_by_video_id(
+        platform=SupportedPlatform["youtube"], video_id="aaaaaaaaaaa"
+    )
 
     assert result is None

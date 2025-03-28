@@ -1,5 +1,5 @@
 from .model import Video as VideoModel
-from .dto import Video as VideoDTO
+from .dto import Video as VideoDTO, SupportedPlatform
 from app.database import AsyncSQLAlchemy
 from app.video.exception import (
     NotFoundException,
@@ -10,7 +10,7 @@ from app.video.exception import (
 from app.video_retrieval import VideoRetrieval
 
 from yt_dlp import DownloadError
-from sqlalchemy.sql import Select
+from sqlalchemy.sql import Select, and_
 from urllib.parse import urlparse
 
 
@@ -23,10 +23,12 @@ class VideoRepository:
         parsed_url = urlparse(url)
         platform = parsed_url.netloc
         if parsed_url.netloc in ["www.youtube.com", "youtube.com", "youtu.be"]:
-            platform = "youtube"
+            platform = SupportedPlatform.youtube
             model = None
             if parsed_url.netloc == "youtu.be":
-                model = await self.get_video_by_video_id(parsed_url.path[1:])
+                model = await self.get_video_by_video_id(
+                    platform=platform, video_id=parsed_url.path[1:]
+                )
             else:
                 queries = {
                     key: value
@@ -34,7 +36,9 @@ class VideoRepository:
                     if (split := query.split("=")) and len(split) == 2
                     for key, value in [split]
                 }
-                model = await self.get_video_by_video_id(queries.get("v", ""))
+                model = await self.get_video_by_video_id(
+                    platform=platform, video_id=queries.get("v", "")
+                )
 
             if model:
                 return model
@@ -48,7 +52,7 @@ class VideoRepository:
 
             async with self._session_factory() as session:
                 model = VideoModel(
-                    platform=platform,
+                    platform=platform.value,
                     video_id=video.video_id,
                     channel_id=video.channel_id,
                     channel_name=video.channel_name,
@@ -58,7 +62,7 @@ class VideoRepository:
                 )
                 session.add(model)
                 await session.commit()
-                return VideoDTO(**model.to_dict())
+                return _model_to_dto(model)
         except DownloadError:
             raise NotFoundException(NotFoundThings.video)
         except Exception as e:
@@ -71,17 +75,33 @@ class VideoRepository:
                     Select(VideoModel).filter(VideoModel.instance_id == instance_id)
                 )
                 model = result.scalar_one_or_none()
-                return VideoDTO(**model.to_dict()) if model else None
+                return _model_to_dto(model) if model else None
         except Exception as e:
             raise UnknownException(e)
 
-    async def get_video_by_video_id(self, video_id: str) -> VideoDTO | None:
+    async def get_video_by_video_id(
+        self, platform: SupportedPlatform, video_id: str
+    ) -> VideoDTO | None:
         try:
             async with self._session_factory() as session:
                 result = await session.execute(
-                    Select(VideoModel).filter(VideoModel.video_id == video_id)
+                    Select(VideoModel).filter(
+                        and_(
+                            VideoModel.video_id == video_id,
+                            VideoModel.platform == platform.value,
+                        )
+                    )
                 )
                 model = result.scalar_one_or_none()
-                return VideoDTO(**model.to_dict()) if model else None
+                return _model_to_dto(model) if model else None
         except Exception as e:
             raise UnknownException(e)
+
+
+def _model_to_dto(model: VideoModel) -> VideoDTO:
+    return VideoDTO(
+        **{
+            **model.to_dict(),
+            "platform": SupportedPlatform(model.platform),
+        }
+    )
