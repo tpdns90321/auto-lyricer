@@ -10,7 +10,7 @@
       in
       {
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [ go nodejs nodePackages.pnpm ffmpeg-full ];
+          packages = with pkgs; [ go nodejs nodePackages.pnpm ffmpeg-full uv ];
         };
       });
 }
