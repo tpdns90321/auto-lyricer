@@ -14,4 +14,4 @@ class AIOSqlite(AsyncSQLAlchemy):
 
 
 # Below part is imported from another repository's model
-from app.video.model import *
+from ..video.model import *

@@ -1,13 +1,13 @@
 from .model import Video as VideoModel
 from .dto import Video as VideoDTO, SupportedPlatform
-from app.database import AsyncSQLAlchemy
-from app.video.exception import (
+from .exception import (
     NotFoundException,
     NotFoundThings,
     UnknownException,
     UnsupportedPlatformException,
 )
-from app.video_retrieval import VideoRetrieval
+from ..database import AsyncSQLAlchemy
+from ..video_retrieval import VideoRetrieval
 
 from yt_dlp import DownloadError
 from sqlalchemy.sql import Select, and_

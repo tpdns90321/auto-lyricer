@@ -21,6 +21,7 @@ class AsyncSQLAlchemyBase(DeclarativeBase, MappedAsDataclass, AsyncAttrs):
 
 class AsyncSQLAlchemy:
     def __init__(self, connection_url: str, base: type[DeclarativeBase]):
+        self._connection_url = connection_url
         self._engine = create_async_engine(connection_url, echo=True)
         self._session_factory = async_scoped_session(
             async_sessionmaker(

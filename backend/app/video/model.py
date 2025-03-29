@@ -1,4 +1,4 @@
-from app.database import AIOSqliteBase
+from ..database import AIOSqliteBase
 from sqlalchemy.orm import Mapped, mapped_column
 
 

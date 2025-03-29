@@ -1,0 +1,5 @@
+aiosqlite:
+  relative_path: main.db
+
+yt_dlp:
+  opts: {}

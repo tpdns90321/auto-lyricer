@@ -1,12 +1,12 @@
 from .repository import VideoRepository
 from .dto import SupportedPlatform, Video
-from app.database import AIOSqlite
-from app.video_retrieval import VideoInfo
-from app.video.exception import (
+from ..database import AIOSqlite
+from ..video_retrieval import VideoInfo
+from ..video.exception import (
     NotFoundException,
     UnsupportedPlatformException,
 )
-from app.video_retrieval import VideoRetrieval
+from ..video_retrieval import VideoRetrieval
 
 import pytest
 import pytest_asyncio
@@ -95,7 +95,7 @@ async def test_retrieval_video_duplicate(
 ):
     async def retrieval_video() -> Video:
         return await normal_repository.retrieval_video(
-            url="https://www.youtube.com/watch?v=testestest"
+            url="https://youtu.be/testestest?si=123"
         )
 
     second_try = await retrieval_video()
