@@ -35,6 +35,7 @@ app.include_router(router)
 
 @pytest_asyncio.fixture
 async def client():
+    await database.reset_database()
     return AsyncClient(transport=ASGITransport(app=app), base_url="http://test")
 
 
@@ -84,3 +85,41 @@ async def test_retrieval_video_duplicated(
 
     assert current_response_data.instance_id == 1
     assert previous_response_data.video_id == current_response_data.video_id
+
+
+@pytest.mark.asyncio
+async def test_get_video_by_video_id_success(
+    video_retrieval_success_response: Response, client: AsyncClient
+):
+    first_response_data = _response_to_video(video_retrieval_success_response)
+    query_response = await client.get(
+        f"/video/video_id/{first_response_data.platform.value}/{first_response_data.video_id}"
+    )
+    assert query_response.status_code == 200
+    query_response_data = _response_to_video(query_response)
+    assert first_response_data.instance_id == 1
+    assert query_response_data.instance_id == 1
+    assert query_response_data.video_id == first_response_data.video_id
+    assert query_response_data.platform == first_response_data.platform
+
+
+@pytest.mark.asyncio
+async def test_get_video_by_video_id_not_found(client: AsyncClient):
+    query_response = await client.get(
+        f"/video/video_id/{SupportedPlatform.youtube.value}/testestest"
+    )
+    assert query_response.status_code == 404
+    assert query_response.json() is None
+
+
+@pytest.mark.asyncio
+async def test_get_video_by_instance_id(
+    client: AsyncClient, video_retrieval_success_response
+):
+    query_response = await client.get("/video/instance_id/1")
+    assert query_response.status_code == 200
+    assert query_response.json() is not None
+    assert (
+        query_response.json()["instance_id"]
+        == video_retrieval_success_response.json()["instance_id"]
+    )
