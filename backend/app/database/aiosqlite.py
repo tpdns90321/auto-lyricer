@@ -11,7 +11,3 @@ class AIOSqliteBase(AsyncSQLAlchemyBase):
 class AIOSqlite(AsyncSQLAlchemy):
     def __init__(self, relative_path: str):
         super().__init__("sqlite+aiosqlite:///" + relative_path, AIOSqliteBase)
-
-
-# Below part is imported from another repository's model
-from ..video.model import *

@@ -1,9 +1,5 @@
+from .model import SupportedPlatform
 from dataclasses import dataclass
-from enum import Enum
-
-
-class SupportedPlatform(str, Enum):
-    youtube = "youtube"
 
 
 @dataclass(frozen=True)

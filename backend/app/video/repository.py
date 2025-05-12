@@ -49,13 +49,17 @@ class VideoRepository:
             raise UnsupportedPlatformException(parsed_url.netloc)
 
         try:
-            video = await self._retrieval.retrieval_video_info(url)
+            recreated_url = ""
+            if platform == SupportedPlatform.youtube:
+                recreated_url = f"https://www.youtube.com/watch?v={video_id}"
+
+            video = await self._retrieval.retrieval_video_info(recreated_url)
             if not video:
                 raise NotFoundException(NotFoundThings.video)
 
             async with self._session_factory() as session:
                 model = VideoModel(
-                    platform=platform.value,
+                    platform=platform,
                     video_id=video.video_id,
                     channel_id=video.channel_id,
                     channel_name=video.channel_name,
@@ -102,9 +106,4 @@ class VideoRepository:
 
 
 def _model_to_dto(model: VideoModel) -> VideoDTO:
-    return VideoDTO(
-        **{
-            **model.to_dict(),
-            "platform": SupportedPlatform(model.platform),
-        }
-    )
+    return VideoDTO(**model.to_dict())
