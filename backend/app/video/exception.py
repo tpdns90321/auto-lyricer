@@ -8,6 +8,7 @@ class UnknownException(Exception):
 
 class NotFoundThings(Enum):
     video = "video"
+    video_id = "video_id"
 
 
 class NotFoundException(Exception):

@@ -2,3 +2,4 @@ __pycache__
 .venv
 config.yaml
 main.db
+*.m4a

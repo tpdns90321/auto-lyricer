@@ -24,11 +24,9 @@ class VideoRepository:
         platform = parsed_url.netloc
         if parsed_url.netloc in ["www.youtube.com", "youtube.com", "youtu.be"]:
             platform = SupportedPlatform.youtube
-            model = None
+            video_id: str | None = None
             if parsed_url.netloc == "youtu.be":
-                model = await self.get_video_by_video_id(
-                    platform=platform, video_id=parsed_url.path[1:]
-                )
+                video_id = parsed_url.path[1:]
             else:
                 queries = {
                     key: value
@@ -36,9 +34,14 @@ class VideoRepository:
                     if (split := query.split("=")) and len(split) == 2
                     for key, value in [split]
                 }
-                model = await self.get_video_by_video_id(
-                    platform=platform, video_id=queries.get("v", "")
-                )
+                video_id = queries.get("v", None)
+
+            if not video_id:
+                raise NotFoundException(NotFoundThings.video_id)
+
+            model = await self.get_video_by_video_id(
+                platform=platform, video_id=video_id
+            )
 
             if model:
                 return model

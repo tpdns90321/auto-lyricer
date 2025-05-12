@@ -1,9 +1,10 @@
 from .monkey_patch import gevent
-import yt_dlp
-import asyncio_gevent
-
 from .type import VideoInfo
 from .exception import VideoExtractError
+
+import yt_dlp
+import asyncio
+import asyncio_gevent
 
 
 class VideoRetrieval:
@@ -31,3 +32,21 @@ class VideoRetrieval:
             gevent.spawn(_retrieval_video_info)
         )
         return result
+
+    async def retrieval_audio_of_video(self, url: str) -> bytes:
+        ytd_process = await asyncio.subprocess.create_subprocess_exec(
+            "yt-dlp",
+            "-f",
+            "bestaudio",
+            url,
+            "--no-warnings",
+            "--quiet",
+            "-o",
+            "-",
+            stdout=asyncio.subprocess.PIPE,
+        )
+
+        if ytd_process.stdout is None:
+            raise VideoExtractError("Cannot extract video audio")
+
+        return await ytd_process.stdout.read()

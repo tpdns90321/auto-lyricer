@@ -84,6 +84,14 @@ async def test_retrieval_video_not_found(failed_repository: VideoRepository):
 
 
 @pytest.mark.asyncio
+async def test_retrieval_video_invalid_url(failed_repository: VideoRepository):
+    with pytest.raises(NotFoundException):
+        await failed_repository.retrieval_video(
+            url="https://www.youtube.com/watch?v=&si=123"
+        )
+
+
+@pytest.mark.asyncio
 async def test_retrieval_video_unsupported_platform(normal_repository: VideoRepository):
     with pytest.raises(UnsupportedPlatformException):
         await normal_repository.retrieval_video(url="https://www.naver.com")
