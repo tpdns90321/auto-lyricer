@@ -1,5 +1,7 @@
 from sqlalchemy.sql.schema import ForeignKey
+
 from ..database import AIOSqliteBase
+from ..shared.supported import Language
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING
@@ -14,7 +16,7 @@ class Lyric(AIOSqliteBase):
     instance_id: Mapped[int] = mapped_column(
         primary_key=True, autoincrement=True, init=False
     )
-    language: Mapped[str]
+    language: Mapped[Language]
     content: Mapped[str]
 
     video_instance_id: Mapped[int] = mapped_column(

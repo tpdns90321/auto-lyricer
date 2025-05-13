@@ -1,16 +1,18 @@
+from ..shared.supported import Language
+
 from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
 class Lyric:
     instance_id: int
-    language: str
+    language: Language
     content: str
     video_instance_id: int
 
 
 @dataclass(frozen=True)
 class AddLyric:
-    language: str
+    language: Language
     content: str
     video_instance_id: int

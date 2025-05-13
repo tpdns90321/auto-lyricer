@@ -1,5 +1,6 @@
 from .repository import VideoRepository
-from .dto import SupportedPlatform, Video, RetrievalVideo
+from .dto import Video, RetrievalVideo
+from ..shared.supported import Platform as SupportedPlatform
 
 
 class VideoService:

@@ -1,6 +1,7 @@
 from .service import VideoService
 from .repository import VideoRepository
-from .dto import SupportedPlatform, Video, RetrievalVideo
+from .dto import Video, RetrievalVideo
+from ..shared.supported import Platform as SupportedPlatform
 from ..database import AIOSqlite
 from ..video_retrieval import VideoRetrieval, VideoInfo
 

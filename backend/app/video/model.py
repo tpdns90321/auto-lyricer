@@ -1,16 +1,12 @@
 from ..database import AIOSqliteBase
+from ..shared.supported import Platform as SupportedPlatform
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import UniqueConstraint
-from enum import Enum
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..lyric.model import Lyric
-
-
-class SupportedPlatform(Enum):
-    youtube = "youtube"
 
 
 class Video(AIOSqliteBase):

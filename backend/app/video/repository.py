@@ -1,8 +1,11 @@
 from .model import Video as VideoModel
-from .dto import Video as VideoDTO, SupportedPlatform
+from .dto import Video as VideoDTO
 from .exception import (
     NotFoundException,
     NotFoundThings,
+)
+from ..shared.supported import Platform as SupportedPlatform
+from ..shared.exception import (
     UnknownException,
     UnsupportedPlatformException,
 )

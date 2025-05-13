@@ -1,9 +1,11 @@
-from .repository import LyricRepository
-from .dto import AddLyric
 from ..database import AIOSqlite
+from ..shared.supported import Language
 from ..video.repository import VideoRepository
 from ..video_retrieval.retrieval import VideoRetrieval
 from ..video_retrieval.type import VideoInfo
+from .repository import LyricRepository
+from .dto import AddLyric
+from .exception import NotFoundThing, NotFoundThingException
 
 import pytest
 import pytest_asyncio
@@ -49,7 +51,7 @@ async def lyric_repository(
 async def test_lyric_repository_create_lyric(lyric_repository: LyricRepository):
     lyric = await lyric_repository.add_lyric(
         AddLyric(
-            language="English",
+            language=Language.english,
             content="Hello, world!",
             video_instance_id=1,
         )
@@ -61,11 +63,13 @@ async def test_lyric_repository_create_lyric(lyric_repository: LyricRepository):
 async def test_lyric_repository_create_lyric_with_invalid_video(
     lyric_repository: LyricRepository,
 ):
-    with pytest.raises(Exception):
+    with pytest.raises(NotFoundThingException) as notFoundException:
         await lyric_repository.add_lyric(
             AddLyric(
-                language="English",
+                language=Language.english,
                 content="Hello, Bad World!",
                 video_instance_id=9999,
             )
         )
+
+    assert notFoundException.value.thing == NotFoundThing.VideoInstance

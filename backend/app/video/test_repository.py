@@ -1,11 +1,12 @@
 from .repository import VideoRepository
-from .dto import SupportedPlatform, Video
+from .dto import Video
+from ..shared.supported import Platform as SupportedPlatform
 from ..database import AIOSqlite
 from ..video_retrieval import VideoInfo
 from ..video.exception import (
     NotFoundException,
-    UnsupportedPlatformException,
 )
+from ..shared.exception import UnsupportedPlatformException
 from ..video_retrieval import VideoRetrieval
 
 import pytest
