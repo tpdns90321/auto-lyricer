@@ -3,6 +3,10 @@ from ..database import AIOSqliteBase
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import UniqueConstraint
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..lyric.model import Lyric
 
 
 class SupportedPlatform(Enum):
@@ -22,6 +26,13 @@ class Video(AIOSqliteBase):
     title: Mapped[str]
     duration_seconds: Mapped[int]
     thumbnail_url: Mapped[str]
+
+    # Relationships
+    lyrics: Mapped[list["Lyric"]] = relationship(
+        "Lyric",
+        back_populates="video",
+        init=False,
+    )
 
     __table_args__ = (UniqueConstraint("platform", "video_id"),)
 
