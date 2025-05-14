@@ -1,4 +1,5 @@
 from ..database.AsyncSQLAlchemy import AsyncSQLAlchemy
+from ..shared.exception import UnknownException
 from .model import Lyric as LyricModel
 from .dto import Lyric as LyricDTO, AddLyric
 from .exception import NotFoundThing, NotFoundThingException
@@ -20,6 +21,12 @@ class LyricRepository:
             session.add(model)
             try:
                 await session.commit()
-            except IntegrityError:
-                raise NotFoundThingException(NotFoundThing.VideoInstance)
+            except IntegrityError as e:
+                errorMessage = str(e.orig)
+                # Have only foriegn key for video instance id, so we can check if it is not found
+                if "FOREIGN KEY constraint failed" in errorMessage:
+                    raise NotFoundThingException(NotFoundThing.VideoInstance)
+                raise UnknownException(e)
+            except Exception as e:
+                raise UnknownException(e)
             return LyricDTO(**model.to_dict())
