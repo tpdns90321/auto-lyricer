@@ -1,5 +1,6 @@
 from .container import AppContainer
 from .video.api import router as video_router
+from .lyric.api import router as lyric_router
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -18,3 +19,4 @@ async def lifespan(_: FastAPI):
 api = FastAPI(lifespan=lifespan)
 
 api.include_router(video_router)
+api.include_router(lyric_router)

@@ -1,14 +1,14 @@
 from ..database import AIOSqlite
 from ..shared.supported import Language
-from ..video_retrieval.retrieval import VideoRetrieval
-from ..video_retrieval.type import VideoInfo
+from ..video_retrieval import VideoRetrieval, VideoInfo
 from ..video.repository import VideoRepository
 from .repository import LyricRepository
+from .service import LyricService
 from .dto import AddLyric, Lyric
 from .exception import NotFoundThing, NotFoundThingException
 
-import pytest
 import pytest_asyncio
+import pytest
 from unittest.mock import AsyncMock
 
 
@@ -48,8 +48,13 @@ async def lyric_repository(
 
 
 @pytest_asyncio.fixture
-async def normal_lyric(lyric_repository: LyricRepository) -> Lyric:
-    return await lyric_repository.add_lyric(
+async def lyric_service(lyric_repository: LyricRepository) -> LyricService:
+    return LyricService(lyric_repository)
+
+
+@pytest_asyncio.fixture
+async def normal_lyric(lyric_service: LyricService) -> Lyric:
+    return await lyric_service.add_lyric(
         AddLyric(
             language=Language.english,
             content="Hello, world!",
@@ -59,71 +64,60 @@ async def normal_lyric(lyric_repository: LyricRepository) -> Lyric:
 
 
 @pytest.mark.asyncio
-async def test_lyric_repository_add_lyric(normal_lyric: Lyric):
+async def test_lyric_service_add_lyric(normal_lyric: Lyric):
     assert normal_lyric.instance_id == 1
+    assert normal_lyric.language == Language.english
+    assert normal_lyric.content == "Hello, world!"
+    assert normal_lyric.video_instance_id == 1
 
 
 @pytest.mark.asyncio
-async def test_lyric_repository_add_lyric_with_invalid_video(
-    lyric_repository: LyricRepository,
+async def test_lyric_service_add_lyric_with_invalid_video(
+    lyric_service: LyricService,
 ):
+    dto = AddLyric(
+        language=Language.english,
+        content="Hello, Bad World!",
+        video_instance_id=9999,
+    )
     with pytest.raises(NotFoundThingException) as notFoundException:
-        await lyric_repository.add_lyric(
-            AddLyric(
-                language=Language.english,
-                content="Hello, Bad World!",
-                video_instance_id=9999,
-            )
-        )
-
+        await lyric_service.add_lyric(dto)
     assert notFoundException.value.thing == NotFoundThing.VideoInstance
 
 
 @pytest.mark.asyncio
-async def test_lyric_repository_get_lyric_by_instance_id(
-    normal_lyric: Lyric, lyric_repository: LyricRepository
+async def test_lyric_service_get_lyric_by_instance_id(
+    lyric_service: LyricService, normal_lyric: Lyric
 ):
-    lyric = await lyric_repository.get_lyric_by_instance_id(
-        instance_id=normal_lyric.instance_id
-    )
+    lyric = await lyric_service.get_lyric_by_instance_id(1)
     assert lyric is not None
-    assert lyric.instance_id == normal_lyric.instance_id
     assert lyric.language == normal_lyric.language
     assert lyric.content == normal_lyric.content
+    assert lyric.video_instance_id == normal_lyric.video_instance_id
 
 
 @pytest.mark.asyncio
-async def test_lyric_repository_get_lyric_by_instance_id_not_found(
-    lyric_repository: LyricRepository,
+async def test_lyric_service_get_lyric_by_instance_id_not_found(
+    lyric_service: LyricService,
 ):
-    lyric = await lyric_repository.get_lyric_by_instance_id(instance_id=9999)
+    lyric = await lyric_service.get_lyric_by_instance_id(9999)
     assert lyric is None
 
 
 @pytest.mark.asyncio
-async def test_lyric_repository_get_list_of_lyrics_by_video_instance_id(
-    normal_lyric: Lyric, lyric_repository: LyricRepository
+async def test_lyric_service_get_list_of_lyrics_by_video_instance_id(
+    lyric_service: LyricService, normal_lyric: Lyric
 ):
-    lyric2 = await lyric_repository.add_lyric(
-        AddLyric(
-            language=Language.english,
-            content="Hello, world!",
-            video_instance_id=1,
-        )
-    )
-    lyrics = await lyric_repository.get_list_of_lyrics_by_video_instance_id(
-        video_instance_id=normal_lyric.video_instance_id
-    )
-    assert len(lyrics) == 2
+    lyrics = await lyric_service.get_list_of_lyrics_by_video_instance_id(1)
+    assert len(lyrics) == 1
     assert lyrics[0].instance_id == normal_lyric.instance_id
-    assert lyrics[1].instance_id == lyric2.instance_id
+    assert lyrics[0].language == normal_lyric.language
+    assert lyrics[0].content == normal_lyric.content
 
 
 @pytest.mark.asyncio
-async def test_lyric_repository_get_list_of_lyrics_by_video_instance_id_not_found(
-    lyric_repository: LyricRepository,
+async def test_lyric_service_get_list_of_lyrics_by_video_instance_id_not_found(
+    lyric_service: LyricService,
 ):
-    lyrics = await lyric_repository.get_list_of_lyrics_by_video_instance_id(
-        video_instance_id=9999
-    )
+    lyrics = await lyric_service.get_list_of_lyrics_by_video_instance_id(9999)
     assert len(lyrics) == 0
