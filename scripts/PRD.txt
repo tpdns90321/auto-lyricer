@@ -1,0 +1,274 @@
+# Overview  
+Auto-Lyricer is a web application that enables users to automatically generate synchronized subtitles for YouTube videos by combining transcription with original lyrics. The system transcribes audio with precise timestamps, aligns original lyrics with these timestamps, and then displays translated subtitles alongside the YouTube video. This solves the problem of watching foreign language music videos without understanding the lyrics, by providing accurate, time-synchronized translations.
+
+# Core Features  
+## Transcription with Timestamps
+- **What it does**: Uses Whisper-like Speech-to-Text (STT) technology to transcribe audio from YouTube videos with precise timing information
+- **Why it's important**: Creates the foundation for accurate subtitle synchronization
+- **How it works**: Extracts audio from YouTube videos and processes it through an STT model that outputs both words and their corresponding timestamps
+
+## Lyrics Alignment
+- **What it does**: Aligns original lyrics with transcription timestamps 
+- **Why it's important**: Ensures lyrics appear at the exact moment they are sung in the video
+- **How it works**: Uses LLM to combine timestamp information from the transcription with the original lyrics to create an accurately timed SRT file
+
+## Translation
+- **What it does**: Translates synchronized lyrics to target languages
+- **Why it's important**: Makes content accessible to viewers who don't understand the original language
+- **How it works**: Processes the aligned original lyrics through translation models while preserving timing information
+
+## Video Player with Subtitles
+- **What it does**: Displays YouTube videos with synchronized subtitles
+- **Why it's important**: Provides a seamless viewing experience with properly timed translations
+- **How it works**: Embeds YouTube player with WebVTT subtitle track generated from the translated SRT file
+
+# User Experience  
+## User Personas
+1. **Language Learners**: People who want to understand lyrics in foreign languages to improve their language skills
+2. **Music Enthusiasts**: Fans who want to understand the meaning of songs in languages they don't speak
+3. **Content Creators**: YouTubers who want to add translations to their music videos
+
+## Key User Flows
+1. **Video Selection**:
+   - User enters YouTube URL or video ID
+   - System extracts video information and displays video thumbnail and title
+
+2. **Transcription**:
+   - System automatically extracts audio and transcribes it with timestamps
+   - User can view the raw transcription output
+
+3. **Lyrics Input**:
+   - User inputs or pastes original lyrics
+   - System processes and aligns lyrics with transcription timestamps
+
+4. **Translation**:
+   - User selects target language for translation
+   - System generates translated subtitles with preserved timing
+
+5. **Viewing Experience**:
+   - User watches video with synchronized translated subtitles
+   - Subtitles appear at the exact moment lyrics are sung
+
+## UI/UX Considerations
+- Clean, distraction-free video player with focus on content
+- Side-by-side view of original lyrics and translations where applicable
+- Responsive design that works on both desktop and mobile devices
+- Clear status indicators during processing (transcription, alignment, translation)
+- Option to download SRT files for use in other applications
+
+# Technical Architecture  
+## System Components
+1. **Backend (FastAPI)**
+   - Video management module
+   - Lyrics management module
+   - Transcription service
+   - Translation service
+   - RESTful API endpoints
+
+2. **Frontend (React)**
+   - Video player component (using video.js with YouTube plugin)
+   - Subtitle display component
+   - User input forms for lyrics
+   - Progress indicators
+
+3. **External Services**
+   - YouTube data extraction (yt-dlp)
+   - Speech-to-text service (Whisper-like, UVR-like models)
+   - Language model for lyrics alignment
+   - Translation service
+
+## Data Models
+1. **Video**
+   - instance_id (PK)
+   - platform (enum)
+   - video_id (string)
+   - channel_id (string)
+   - channel_name (string)
+   - title (string)
+   - duration_seconds (integer)
+   - thumbnail_url (string)
+   - unique constraint: (platform, video_id)
+
+2. **Lyric**
+   - instance_id (PK)
+   - language (enum)
+   - content (string)
+   - video_instance_id (FK to Video)
+
+3. **Transcription**
+   - instance_id (PK)
+   - video_instance_id (FK to Video)
+   - content (string)
+   - status (enum: pending, processing, completed, failed)
+
+4. **Subtitle**
+   - instance_id (PK)
+   - video_instance_id (FK to Video)
+   - lyric_instance_id (FK to Lyric, nullable)
+   - language (enum, nullable)
+   - content (string)
+   - status (enum: pending, processing, completed, failed)
+   - referenced_subtitle (self FK to Subtitle, nullable)
+   - restriction: subtitle may have only (lyric_instance_id and language) or referenced_subtitle.
+
+## APIs and Integrations
+1. **YouTube Integration**
+   - Video metadata retrieval
+   - Audio extraction
+
+2. **REST API Endpoints**
+   - `/videos`: retrieve videos from platform
+   - `/lyrics`: Create, update lyrics
+   - `/transcription`: Create, update transcription
+   - `/subtitles`: Get or create subtitles
+
+3. **LLM Integration**
+   - Alignment of lyrics with timestamps
+   - Translation services
+
+## Infrastructure Requirements
+- **Database**: SQLite for development
+- **File Storage**: Local filesystem for development
+- **Compute**: Optimized instances for transcription and LLM processing
+
+# Development Roadmap  
+## MVP Phase
+1. **Core Backend Framework**
+   - FastAPI setup with dependency injection
+   - Database models and migrations
+   - Basic API endpoints for videos and lyrics
+   - Write unit tests first.
+
+2. **Transcription Service**
+   - YouTube video extraction
+   - Audio processing pipeline
+   - Whisper integration for transcription with timestamps
+
+3. **Lyrics Alignment**
+   - Implement LLM-based alignment algorithm
+   - Generate SRT files from aligned lyrics
+
+4. **Basic Frontend**
+   - YouTube video player
+   - SRT subtitle display
+   - Input form for original lyrics
+
+## Enhancement Phase
+1. **Translation Service**
+   - Integration with translation API/model
+   - Support for multiple target languages
+   - Preservation of timing in translated subtitles
+
+2. **User Experience Improvements**
+   - Improved UI with progress indicators
+   - Error handling and recovery
+   - Mobile responsiveness
+
+3. **Performance Optimization**
+   - Caching of API responses
+   - Optimization of LLM calls
+   - Background processing for heavy tasks
+
+## Advanced Features Phase
+1. **User Management**
+   - User accounts and authentication
+   - Saved videos and lyrics
+   - Sharing capabilities
+
+2. **Chrome/Firefox Extension**
+   - One-click transcription and translation
+   - Integration with existing video platforms
+
+3. **Editing Tools**
+   - Manual adjustment of subtitle timing
+   - Subtitle style customization
+   - Batch processing of videos
+
+4. **Analytics**
+   - Usage statistics
+   - Performance monitoring
+   - Error tracking
+
+# Logical Dependency Chain
+1. **Foundation Components** (Must build first)
+   - Database setup and models
+   - YouTube video extraction
+   - Basic API endpoints
+
+2. **Transcription Pipeline**
+   - Audio extraction
+   - Whisper integration
+   - Timestamp processing
+
+3. **Frontend Basics**
+   - Video player implementation
+   - Simple UI for entering video URL and lyrics
+
+4. **Alignment System**
+   - Lyrics input processing
+   - LLM-based alignment algorithm
+   - SRT generation
+
+5. **Translation Layer**
+   - Translation service integration
+   - Multi-language support
+
+6. **Enhanced User Experience**
+   - Improved UI/UX
+   - Additional features like downloading SRTs
+   - Error handling and recovery
+
+# Risks and Mitigations  
+## Technical Challenges
+1. **Accurate Transcription**
+   - **Risk**: Whisper may not accurately capture all words or timestamps for certain accents or music with heavy instrumentation
+   - **Mitigation**: Implement filtering to improve audio quality before transcription, provide manual correction options
+
+2. **Lyrics Alignment Accuracy**
+   - **Risk**: LLM might struggle with complex alignment cases
+   - **Mitigation**: Develop heuristic fallbacks, allow manual adjustments, implement validation checks
+
+3. **API Rate Limits and Costs**
+   - **Risk**: External APIs for transcription and translation may have rate limits or high costs
+   - **Mitigation**: Implement caching, batching of requests, consider self-hosted models
+
+## MVP Challenges
+1. **Scope Definition**
+   - **Risk**: Feature creep could delay MVP release
+   - **Mitigation**: Clear prioritization, focus on core user flow first
+
+2. **Performance vs Accuracy**
+   - **Risk**: Achieving both fast processing and high accuracy is challenging
+   - **Mitigation**: Implement background processing, queue system for long-running tasks
+
+3. **YouTube API Limitations**
+   - **Risk**: YouTube policies may limit video extraction capabilities
+   - **Mitigation**: Comply with ToS, implement alternative sources, consider user-provided audio
+
+## Resource Constraints
+1. **Compute Requirements**
+   - **Risk**: STT and LLM processing require significant resources
+   - **Mitigation**: Optimize model sizes, implement efficient processing strategies
+
+2. **Development Time**
+   - **Risk**: Building robust STT and LLM pipelines is time-consuming
+   - **Mitigation**: Prioritize core features, use existing libraries where possible
+
+3. **Testing Complexity**
+   - **Risk**: Challenging to test all language combinations and edge cases
+   - **Mitigation**: Implement comprehensive automated testing, focus on most common languages first
+
+# Appendix  
+## Research Findings
+- Whisper models offer multilingual STT with timestamp capability
+- SRT/WebVTT formats are widely supported by video players
+- LLMs can effectively align text when provided with examples and clear instructions
+- Translation quality varies significantly by language pair
+
+## Technical Specifications
+- **Transcription**: OpenAI Whisper or similar models
+- **LLM**: Claude or GPT model for alignment and translation
+- **Frontend**: React with video.js for player
+- **Backend**: FastAPI with SQLAlchemy
+- **Testing**: PyTest for backend, Cypress for frontend
+- **CI/CD**: GitHub Actions for continuous integration
