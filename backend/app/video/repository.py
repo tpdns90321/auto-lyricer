@@ -1,5 +1,5 @@
 from .model import Video as VideoModel
-from .dto import Video as VideoDTO
+from .dto import Video as VideoDTO, PaginatedResponse
 from .exception import (
     NotFoundException,
     NotFoundThings,
@@ -14,6 +14,7 @@ from ..video_retrieval import VideoRetrieval
 
 from yt_dlp import DownloadError
 from sqlalchemy.sql import Select, and_
+from sqlalchemy.sql.functions import count
 from urllib.parse import urlparse
 
 
@@ -104,6 +105,39 @@ class VideoRepository:
                 )
                 model = result.scalar_one_or_none()
                 return _model_to_dto(model) if model else None
+        except Exception as e:
+            raise UnknownException(e)
+
+    async def get_paginated_videos(
+        self, page: int = 1, size: int = 10
+    ) -> PaginatedResponse[VideoDTO]:
+        """
+        Get a paginated list of videos.
+
+        Args:
+            page: The page number, starting from 1.
+            size: The number of items per page.
+
+        Returns:
+            A PaginatedResponse object containing the videos.
+        """
+        try:
+            async with self._session_factory() as session:
+                # Calculate offset based on page and size
+                offset = (page - 1) * size
+
+                # Get total count
+                total_query = Select(count(VideoModel.instance_id))
+                total_result = await session.execute(total_query)
+                total = total_result.scalar()
+
+                # Get paginated results
+                query = Select(VideoModel).limit(size).offset(offset)
+                result = await session.execute(query)
+
+                items = [_model_to_dto(model) for model in result.scalars()]
+
+                return PaginatedResponse(items=items, total=total, page=page, size=size)
         except Exception as e:
             raise UnknownException(e)
 

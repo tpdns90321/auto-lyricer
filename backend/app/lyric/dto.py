@@ -1,4 +1,5 @@
 from ..shared.supported import Language
+from ..shared.pagination import *
 
 from dataclasses import dataclass
 

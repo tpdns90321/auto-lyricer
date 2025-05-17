@@ -95,3 +95,55 @@ async def test_get_video_by_video_id_not_found(normal_video_service: VideoServic
         SupportedPlatform.youtube, "not_found"
     )
     assert video is None
+
+
+@pytest.mark.asyncio
+async def test_get_paginated_videos(normal_video_service: VideoService):
+    # Create additional videos
+    for i in range(15):  # Adding 15 more videos, giving us 15
+        # We need to update the mock to return different video IDs
+        normal_video_service._repository._retrieval.retrieval_video_info = (
+            mock.AsyncMock(
+                return_value=VideoInfo(
+                    video_id=f"test{i}",
+                    domain="youtube.com",
+                    duration_seconds=10,
+                    channel_name="channel_name",
+                    channel_id="channel_id",
+                    title=f"Test Video {i}",
+                    thumbnail_url="thumbnail_url",
+                )
+            )
+        )
+
+        await normal_video_service.retrieval_video(
+            RetrievalVideo(f"https://www.youtube.com/watch?v=test{i}")
+        )
+
+    # Test first page with default values (page=1, size=10)
+    paginated = await normal_video_service.get_paginated_videos()
+    assert paginated.page == 1
+    assert paginated.size == 10
+    assert paginated.total == 15
+    assert len(paginated.items) == 10
+
+    # Test second page
+    paginated = await normal_video_service.get_paginated_videos(page=2)
+    assert paginated.page == 2
+    assert paginated.size == 10
+    assert paginated.total == 15
+    assert len(paginated.items) == 5
+
+    # Test with custom page size
+    paginated = await normal_video_service.get_paginated_videos(page=1, size=5)
+    assert paginated.page == 1
+    assert paginated.size == 5
+    assert paginated.total == 15
+    assert len(paginated.items) == 5
+
+    # Test with empty page (beyond available data)
+    paginated = await normal_video_service.get_paginated_videos(page=4)
+    assert paginated.page == 4
+    assert paginated.size == 10
+    assert paginated.total == 15
+    assert len(paginated.items) == 0

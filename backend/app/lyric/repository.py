@@ -1,11 +1,12 @@
 from ..database.AsyncSQLAlchemy import AsyncSQLAlchemy
 from ..shared.exception import UnknownException
 from .model import Lyric as LyricModel
-from .dto import Lyric as LyricDTO, AddLyric
+from .dto import Lyric as LyricDTO, AddLyric, PaginatedResponse
 from .exception import NotFoundThing, NotFoundThingException
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import Select
+from sqlalchemy.sql.functions import count
 
 
 class LyricRepository:
@@ -49,3 +50,23 @@ class LyricRepository:
                 )
             )
             return [LyricDTO(**model.to_dict()) for model in models.scalars()]
+
+    async def get_paginated_lyrics(
+        self, page: int = 1, size: int = 10
+    ) -> PaginatedResponse[LyricDTO]:
+        async with self._session_factory() as session:
+            # Calculate offset based on page and size
+            offset = (page - 1) * size
+
+            # Get total count
+            total_query = Select(count(LyricModel.instance_id))
+            total_result = await session.execute(total_query)
+            total = total_result.scalar()
+
+            # Get paginated results
+            query = Select(LyricModel).limit(size).offset(offset)
+            result = await session.execute(query)
+
+            items = [LyricDTO(**model.to_dict()) for model in result.scalars()]
+
+            return PaginatedResponse(items=items, total=total, page=page, size=size)

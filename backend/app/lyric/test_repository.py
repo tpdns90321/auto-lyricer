@@ -127,3 +127,46 @@ async def test_lyric_repository_get_list_of_lyrics_by_video_instance_id_not_foun
         video_instance_id=9999
     )
     assert len(lyrics) == 0
+
+
+@pytest.mark.asyncio
+async def test_lyric_repository_get_paginated_lyrics(
+    lyric_repository: LyricRepository, normal_lyric: Lyric
+):
+    # Add several more lyrics for pagination testing
+    for i in range(15):  # Adding 15 more lyrics, giving us 16 total with normal_lyric
+        await lyric_repository.add_lyric(
+            AddLyric(
+                language=Language.english,
+                content=f"Lyric content {i}",
+                video_instance_id=1,
+            )
+        )
+
+    # Test first page with default values (page=1, size=10)
+    paginated = await lyric_repository.get_paginated_lyrics()
+    assert paginated.page == 1
+    assert paginated.size == 10
+    assert paginated.total == 16
+    assert len(paginated.items) == 10
+
+    # Test second page
+    paginated = await lyric_repository.get_paginated_lyrics(page=2)
+    assert paginated.page == 2
+    assert paginated.size == 10
+    assert paginated.total == 16
+    assert len(paginated.items) == 6
+
+    # Test with custom page size
+    paginated = await lyric_repository.get_paginated_lyrics(page=1, size=5)
+    assert paginated.page == 1
+    assert paginated.size == 5
+    assert paginated.total == 16
+    assert len(paginated.items) == 5
+
+    # Test page beyond available data
+    paginated = await lyric_repository.get_paginated_lyrics(page=4)
+    assert paginated.page == 4
+    assert paginated.size == 10
+    assert paginated.total == 16
+    assert len(paginated.items) == 0

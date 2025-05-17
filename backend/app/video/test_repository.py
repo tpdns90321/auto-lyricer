@@ -153,3 +153,52 @@ async def test_get_video_by_video_id_not_found(normal_repository: VideoRepositor
     )
 
     assert result is None
+
+
+@pytest.mark.asyncio
+async def test_get_paginated_videos(normal_repository: VideoRepository):
+    # Create multiple videos for pagination testing
+    for i in range(15):  # Adding 15 videos
+        # Mock a different video ID each time
+        normal_repository._retrieval.retrieval_video_info = AsyncMock(
+            return_value=VideoInfo(
+                video_id=f"test{i}",
+                domain="youtube.com",
+                duration_seconds=100,
+                channel_name="channel",
+                channel_id="channel_id",
+                title=f"Test Video {i}",
+                thumbnail_url="thumbnail_url",
+            )
+        )
+        await normal_repository.retrieval_video(
+            url=f"https://www.youtube.com/watch?v=test{i}&si=123"
+        )
+
+    # Test first page with default values (page=1, size=10)
+    paginated = await normal_repository.get_paginated_videos()
+    assert paginated.page == 1
+    assert paginated.size == 10
+    assert paginated.total == 15
+    assert len(paginated.items) == 10
+
+    # Test second page
+    paginated = await normal_repository.get_paginated_videos(page=2)
+    assert paginated.page == 2
+    assert paginated.size == 10
+    assert paginated.total == 15
+    assert len(paginated.items) == 5
+
+    # Test with custom page size
+    paginated = await normal_repository.get_paginated_videos(page=1, size=5)
+    assert paginated.page == 1
+    assert paginated.size == 5
+    assert paginated.total == 15
+    assert len(paginated.items) == 5
+
+    # Test page beyond available data
+    paginated = await normal_repository.get_paginated_videos(page=4)
+    assert paginated.page == 4
+    assert paginated.size == 10
+    assert paginated.total == 15
+    assert len(paginated.items) == 0

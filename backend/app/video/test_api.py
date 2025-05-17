@@ -106,7 +106,7 @@ async def test_get_video_by_video_id_success(
 @pytest.mark.asyncio
 async def test_get_video_by_video_id_not_found(client: AsyncClient):
     query_response = await client.get(
-        f"/video/video_id/{SupportedPlatform.youtube.value}/testestest"
+        f"/video/video_id/{SupportedPlatform.youtube.value}/invalid_video_id"
     )
     assert query_response.status_code == 404
     assert query_response.json() is None
@@ -123,3 +123,73 @@ async def test_get_video_by_instance_id(
         query_response.json()["instance_id"]
         == video_retrieval_success_response.json()["instance_id"]
     )
+
+
+@pytest.mark.asyncio
+async def test_get_paginated_videos(client: AsyncClient):
+    # Create 15 videos
+    for i in range(15):
+        # Update mock to return different video IDs
+        container.retrieval.provided().retrieval_video_info.return_value = VideoInfo(
+            video_id=f"test{i}",
+            domain="youtube.com",
+            duration_seconds=100,
+            channel_name="channel",
+            channel_id="channel_id",
+            title=f"Test Video {i}",
+            thumbnail_url="thumbnail_url",
+        )
+
+        await client.post(
+            "/video/retrieval",
+            json={"video_url": f"https://www.youtube.com/watch?v=test{i}"},
+        )
+
+    # Test default pagination (page=1, size=10)
+    response = await client.get("/video/")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 15
+    assert data["page"] == 1
+    assert data["size"] == 10
+    assert len(data["items"]) == 10
+
+    # Test with page parameter
+    response = await client.get("/video/?page=2")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 15
+    assert data["page"] == 2
+    assert data["size"] == 10
+    assert len(data["items"]) == 5
+
+    # Test with custom size
+    response = await client.get("/video/?size=5")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 15
+    assert data["page"] == 1
+    assert data["size"] == 5
+    assert len(data["items"]) == 5
+
+    # Test with both page and size
+    response = await client.get("/video/?page=2&size=5")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 15
+    assert data["page"] == 2
+    assert data["size"] == 5
+    assert len(data["items"]) == 5
+
+    # Test with page beyond available data
+    response = await client.get("/video/?page=4")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 15
+    assert data["page"] == 4
+    assert data["size"] == 10
+    assert len(data["items"]) == 0
+
+    # Test with invalid parameters (should use defaults)
+    response = await client.get("/video/?page=0&size=0")
+    assert response.status_code == 422  # FastAPI validation error

@@ -1,5 +1,5 @@
 from .repository import VideoRepository
-from .dto import Video, RetrievalVideo
+from .dto import Video, RetrievalVideo, PaginatedResponse
 from ..shared.supported import Platform as SupportedPlatform
 
 
@@ -17,3 +17,18 @@ class VideoService:
         self, platform: SupportedPlatform, video_id: str
     ) -> Video | None:
         return await self._repository.get_video_by_video_id(platform, video_id)
+
+    async def get_paginated_videos(
+        self, page: int = 1, size: int = 10
+    ) -> PaginatedResponse[Video]:
+        """
+        Get a paginated list of videos.
+
+        Args:
+            page: The page number, starting from 1.
+            size: The number of items per page.
+
+        Returns:
+            A PaginatedResponse object containing the videos.
+        """
+        return await self._repository.get_paginated_videos(page, size)

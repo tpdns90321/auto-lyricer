@@ -119,3 +119,64 @@ async def test_get_list_of_lyrics_by_video_instance_id(
 async def test_get_list_of_lyrics_by_invalid_video_instance_id(client: AsyncClient):
     response = await client.get("/lyric/video/999")
     assert len(response.json()) == 0
+
+
+@pytest.mark.asyncio
+async def test_get_paginated_lyrics(client: AsyncClient):
+    # Add 15 more lyrics
+    for i in range(15):
+        data = AddLyric(
+            video_instance_id=1,
+            content=f"paginated lyric {i}",
+            language=Language.english,
+        )
+        await client.post("/lyric/", json={**data.__dict__})
+
+    # Test default pagination (page=1, size=10)
+    response = await client.get("/lyric/")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 15
+    assert data["page"] == 1
+    assert data["size"] == 10
+    assert len(data["items"]) == 10
+
+    # Test with page parameter
+    response = await client.get("/lyric/?page=2")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 15
+    assert data["page"] == 2
+    assert data["size"] == 10
+    assert len(data["items"]) == 5
+
+    # Test with custom size
+    response = await client.get("/lyric/?size=5")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 15
+    assert data["page"] == 1
+    assert data["size"] == 5
+    assert len(data["items"]) == 5
+
+    # Test with both page and size
+    response = await client.get("/lyric/?page=2&size=5")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 15
+    assert data["page"] == 2
+    assert data["size"] == 5
+    assert len(data["items"]) == 5
+
+    # Test with page beyond available data
+    response = await client.get("/lyric/?page=4")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 15
+    assert data["page"] == 4
+    assert data["size"] == 10
+    assert len(data["items"]) == 0
+
+    # Test with invalid parameters (should use defaults)
+    response = await client.get("/lyric/?page=0&size=0")
+    assert response.status_code == 422  # FastAPI validation error

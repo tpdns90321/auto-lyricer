@@ -1,4 +1,4 @@
-from .dto import AddLyric, Lyric
+from .dto import AddLyric, Lyric, PaginatedResponse
 from .repository import LyricRepository
 
 
@@ -18,3 +18,8 @@ class LyricService:
         return await self._lyric_repository.get_list_of_lyrics_by_video_instance_id(
             video_instance_id
         )
+
+    async def get_paginated_lyrics(
+        self, page: int = 1, size: int = 10
+    ) -> PaginatedResponse[Lyric]:
+        return await self._lyric_repository.get_paginated_lyrics(page, size)
