@@ -6,7 +6,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 container = AppContainer()
-container.wire(modules=[__name__])
 
 
 @asynccontextmanager
