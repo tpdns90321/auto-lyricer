@@ -1,6 +1,7 @@
 from .video_retrieval import VideoRetrieval
 from .video.container import VideoContainer
 from .lyric.container import LyricContainer
+from .transcription.container import TranscriptionContainer
 from .database import AIOSqlite
 
 from dependency_injector import containers, providers
@@ -22,5 +23,10 @@ class AppContainer(containers.DeclarativeContainer):
 
     lyric = providers.Container(
         LyricContainer,
+        database=aiosqlite,
+    )
+
+    transcription = providers.Container(
+        TranscriptionContainer,
         database=aiosqlite,
     )

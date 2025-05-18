@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..lyric.model import Lyric
+    from ..transcription.model import Transcription
 
 
 class Video(AIOSqliteBase):
@@ -26,6 +27,12 @@ class Video(AIOSqliteBase):
     # Relationships
     lyrics: Mapped[list["Lyric"]] = relationship(
         "Lyric",
+        back_populates="video",
+        init=False,
+    )
+
+    transcriptions: Mapped[list["Transcription"]] = relationship(
+        "Transcription",
         back_populates="video",
         init=False,
     )

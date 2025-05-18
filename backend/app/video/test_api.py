@@ -139,6 +139,7 @@ async def test_get_paginated_videos(client: AsyncClient):
             title=f"Test Video {i}",
             thumbnail_url="thumbnail_url",
         )
+        container.wire()
 
         await client.post(
             "/video/retrieval",

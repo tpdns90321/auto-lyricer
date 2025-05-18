@@ -130,6 +130,8 @@ class VideoRepository:
                 total_query = Select(count(VideoModel.instance_id))
                 total_result = await session.execute(total_query)
                 total = total_result.scalar()
+                if total is None:
+                    total = 0
 
                 # Get paginated results
                 query = Select(VideoModel).limit(size).offset(offset)
