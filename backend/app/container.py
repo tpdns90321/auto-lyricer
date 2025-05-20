@@ -2,6 +2,7 @@ from .video_retrieval import VideoRetrieval
 from .video.container import VideoContainer
 from .lyric.container import LyricContainer
 from .transcription.container import TranscriptionContainer
+from .subtitle.container import SubtitleContainer
 from .database import AIOSqlite
 
 from dependency_injector import containers, providers
@@ -28,5 +29,10 @@ class AppContainer(containers.DeclarativeContainer):
 
     transcription = providers.Container(
         TranscriptionContainer,
+        database=aiosqlite,
+    )
+
+    subtitle = providers.Container(
+        SubtitleContainer,
         database=aiosqlite,
     )
