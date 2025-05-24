@@ -21,6 +21,7 @@ node_modules/
 *.njsproj
 *.sln
 *.sw?
+.claude
 # OS specific
 # Task files
 tasks.json
