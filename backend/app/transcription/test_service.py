@@ -1,5 +1,5 @@
 from ..database import AIOSqlite
-from ..shared.supported import Language
+from ..shared.supported import Language, SubtitleExtension
 from ..video_retrieval import VideoRetrieval, VideoInfo
 from ..video.repository import VideoRepository
 from .repository import TranscriptionRepository
@@ -58,6 +58,7 @@ async def normal_transcription(transcription_service: TranscriptionService) -> T
         CreateTranscription(
             language=Language.english,
             content="Hello, this is a test transcription!",
+            subtitle_extension=SubtitleExtension.SRT,
             video_instance_id=1,
         )
     )
@@ -78,6 +79,7 @@ async def test_transcription_service_create_transcription_with_invalid_video(
     dto = CreateTranscription(
         language=Language.english,
         content="Hello, this is a test transcription!",
+        subtitle_extension=SubtitleExtension.SRT,
         video_instance_id=9999,
     )
     with pytest.raises(NotFoundThingException) as notFoundException:
@@ -135,6 +137,7 @@ async def test_transcription_service_get_paginated_transcriptions(
             CreateTranscription(
                 language=Language.english,
                 content=f"Transcription content {i}",
+                subtitle_extension=SubtitleExtension.VTT,
                 video_instance_id=1,
             )
         )

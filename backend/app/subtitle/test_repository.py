@@ -1,9 +1,8 @@
-from ..shared.supported import Language
+from ..shared.supported import Language, SubtitleExtension
 from ..database import AIOSqlite
 from .exception import NotFoundThingException, NotFoundThing
 from .repository import SubtitleRepository
 from .dto import Subtitle, CreateSubtitle
-from .type import FileFormat
 
 import pytest
 import pytest_asyncio
@@ -48,7 +47,7 @@ async def sample_subtitle(repository, video_id) -> Subtitle:
         language=Language.english,
         content="This is a test subtitle",
         video_instance_id=video_id,
-        file_format=FileFormat.SRT,
+        file_format=SubtitleExtension.SRT,
     )
     return await repository.create_subtitle(dto)
 
@@ -59,7 +58,7 @@ async def test_create_subtitle(repository, video_id):
         language=Language.english,
         content="This is a test subtitle",
         video_instance_id=video_id,
-        file_format=FileFormat.SRT,
+        file_format=SubtitleExtension.SRT,
     )
 
     result = await repository.create_subtitle(dto)
@@ -75,7 +74,7 @@ async def test_create_subtitle_with_invalid_video_id(repository):
     dto = CreateSubtitle(
         language=Language.english,
         content="This is a test subtitle",
-        file_format=FileFormat.SRT,
+        file_format=SubtitleExtension.SRT,
         video_instance_id=9999,  # Non-existent video ID
     )
 
@@ -110,7 +109,7 @@ async def test_get_paginated_subtitles_by_video_instance_id(repository, video_id
         dto = CreateSubtitle(
             language=Language.english,
             content=f"Subtitle {i}",
-            file_format=FileFormat.SRT,
+            file_format=SubtitleExtension.SRT,
             video_instance_id=video_id,
         )
         await repository.create_subtitle(dto)
@@ -137,7 +136,7 @@ async def test_get_paginated_subtitles(repository, video_id):
         dto = CreateSubtitle(
             language=Language.english,
             content=f"Subtitle {i}",
-            file_format=FileFormat.SRT,
+            file_format=SubtitleExtension.SRT,
             video_instance_id=video_id,
         )
         await repository.create_subtitle(dto)

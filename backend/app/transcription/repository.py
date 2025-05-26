@@ -22,6 +22,7 @@ class TranscriptionRepository:
             model = TranscriptionModel(
                 language=dto.language,
                 content=dto.content,
+                subtitle_extension=dto.subtitle_extension,
                 video_instance_id=dto.video_instance_id,
             )
             session.add(model)

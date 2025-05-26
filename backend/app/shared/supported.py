@@ -10,3 +10,8 @@ class Language(str, Enum):
     english = "en"
     japanese = "ja"
     korean = "ko"
+
+
+class SubtitleExtension(str, Enum):
+    SRT = "srt"
+    VTT = "vtt"

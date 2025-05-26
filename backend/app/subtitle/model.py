@@ -1,6 +1,5 @@
 from ..database import AIOSqliteBase
-from ..shared.supported import Language
-from .type import FileFormat
+from ..shared.supported import Language, SubtitleExtension
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import ForeignKey
@@ -19,7 +18,7 @@ class Subtitle(AIOSqliteBase):
     )
     language: Mapped[Language]
     content: Mapped[str]
-    file_format: Mapped[FileFormat]
+    file_format: Mapped[SubtitleExtension]
 
     video_instance_id: Mapped[int] = mapped_column(
         ForeignKey("videos.instance_id"),

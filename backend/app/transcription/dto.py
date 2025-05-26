@@ -1,5 +1,5 @@
 
-from ..shared.supported import Language
+from ..shared.supported import Language, SubtitleExtension
 from ..shared.pagination import *
 from dataclasses import dataclass, field
 
@@ -15,6 +15,9 @@ class Transcription:
     content: str = field(
         metadata={"description": "Transcription content/text.", "example": "절대 널 포기하지 않을 거야..."}
     )
+    subtitle_extension: SubtitleExtension = field(
+        metadata={"description": "Subtitle file format.", "example": "srt"}
+    )
     video_instance_id: int = field(
         metadata={"description": "Associated video instance ID.", "example": 1}
     )
@@ -28,6 +31,9 @@ class CreateTranscription:
     )
     content: str = field(
         metadata={"description": "Transcription content/text.", "example": "절대 널 포기하지 않을 거야..."}
+    )
+    subtitle_extension: SubtitleExtension = field(
+        metadata={"description": "Subtitle file format.", "example": "vtt"}
     )
     video_instance_id: int = field(
         metadata={"description": "Associated video instance ID.", "example": 1}

@@ -1,5 +1,5 @@
 from ..database import AIOSqlite
-from ..shared.supported import Language
+from ..shared.supported import Language, SubtitleExtension
 from ..video_retrieval.retrieval import VideoRetrieval
 from ..video_retrieval.type import VideoInfo
 from ..video.repository import VideoRepository
@@ -53,6 +53,7 @@ async def normal_transcription(transcription_repository: TranscriptionRepository
         CreateTranscription(
             language=Language.english,
             content="Hello, this is a test transcription!",
+            subtitle_extension=SubtitleExtension.SRT,
             video_instance_id=1,
         )
     )
@@ -72,6 +73,7 @@ async def test_transcription_repository_create_transcription_with_invalid_video(
             CreateTranscription(
                 language=Language.english,
                 content="Hello, this is a test transcription!",
+                subtitle_extension=SubtitleExtension.SRT,
                 video_instance_id=9999,
             )
         )
@@ -108,6 +110,7 @@ async def test_transcription_repository_get_paginated_transcriptions_by_video_in
         CreateTranscription(
             language=Language.english,
             content="Another test transcription",
+            subtitle_extension=SubtitleExtension.VTT,
             video_instance_id=1,
         )
     )
@@ -141,6 +144,7 @@ async def test_transcription_repository_get_paginated_transcriptions(
             CreateTranscription(
                 language=Language.english,
                 content=f"Transcription content {i}",
+                subtitle_extension=SubtitleExtension.SRT if i % 2 == 0 else SubtitleExtension.VTT,
                 video_instance_id=1,
             )
         )

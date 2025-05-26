@@ -1,9 +1,8 @@
 from ..database import AIOSqlite
-from ..shared.supported import Language
+from ..shared.supported import Language, SubtitleExtension
 from .service import SubtitleService
 from .repository import SubtitleRepository
 from .dto import Subtitle, CreateSubtitle
-from .type import FileFormat
 from .exception import NotFoundThingException, NotFoundThing
 
 import pytest
@@ -51,7 +50,7 @@ async def sample_subtitle(subtitle_service, video_id) -> Subtitle:
         language=Language.english,
         content="This is a test subtitle",
         video_instance_id=video_id,
-        file_format=FileFormat.SRT,
+        file_format=SubtitleExtension.SRT,
     )
     return await subtitle_service.create_subtitle(dto)
 
@@ -61,7 +60,7 @@ async def test_create_subtitle(subtitle_service, video_id):
     dto = CreateSubtitle(
         language=Language.english,
         content="Test subtitle content",
-        file_format=FileFormat.SRT,
+        file_format=SubtitleExtension.SRT,
         video_instance_id=video_id,
     )
 
@@ -70,7 +69,7 @@ async def test_create_subtitle(subtitle_service, video_id):
     assert result.instance_id == 1
     assert result.language == Language.english
     assert result.content == "Test subtitle content"
-    assert result.file_format == FileFormat.SRT
+    assert result.file_format == SubtitleExtension.SRT
     assert result.video_instance_id == video_id
 
 
@@ -79,7 +78,7 @@ async def test_create_subtitle_with_invalid_video_id(subtitle_service):
     dto = CreateSubtitle(
         language=Language.english,
         content="Test subtitle content",
-        file_format=FileFormat.SRT,
+        file_format=SubtitleExtension.SRT,
         video_instance_id=9999,  # Non-existent video ID
     )
 
@@ -117,7 +116,7 @@ async def test_get_paginated_subtitles_by_video_instance_id(subtitle_service, vi
         dto = CreateSubtitle(
             language=Language.english,
             content=f"Subtitle {i}",
-            file_format=FileFormat.SRT,
+            file_format=SubtitleExtension.SRT,
             video_instance_id=video_id,
         )
         await subtitle_service.create_subtitle(dto)
@@ -144,7 +143,7 @@ async def test_get_paginated_subtitles(subtitle_service, video_id):
         dto = CreateSubtitle(
             language=Language.english,
             content=f"Subtitle {i}",
-            file_format=FileFormat.SRT,
+            file_format=SubtitleExtension.SRT,
             video_instance_id=video_id,
         )
         await subtitle_service.create_subtitle(dto)

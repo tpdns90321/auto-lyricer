@@ -1,7 +1,7 @@
 from sqlalchemy.sql.schema import ForeignKey
 
 from ..database import AIOSqliteBase
-from ..shared.supported import Language
+from ..shared.supported import Language, SubtitleExtension
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING
@@ -18,6 +18,7 @@ class Transcription(AIOSqliteBase):
     )
     language: Mapped[Language]
     content: Mapped[str]
+    subtitle_extension: Mapped[SubtitleExtension]
 
     video_instance_id: Mapped[int] = mapped_column(
         ForeignKey("videos.instance_id"),
@@ -30,4 +31,4 @@ class Transcription(AIOSqliteBase):
     )
 
     def __repr__(self):
-        return f"<Transcription instance_id={self.instance_id} content={self.content} language={self.language} video_instance_id={self.video_instance_id}>"
+        return f"<Transcription instance_id={self.instance_id} language={self.language} subtitle_extension={self.subtitle_extension.value} video_instance_id={self.video_instance_id}>"

@@ -1,7 +1,6 @@
 
-from ..shared.supported import Language
+from ..shared.supported import Language, SubtitleExtension
 from ..shared.pagination import *
-from .type import FileFormat
 from dataclasses import dataclass, field
 
 @dataclass(frozen=True)
@@ -16,7 +15,7 @@ class Subtitle:
     content: str = field(
         metadata={"description": "Subtitle content/text.", "example": "[Music] Never gonna give you up..."}
     )
-    file_format: FileFormat = field(
+    file_format: SubtitleExtension = field(
         metadata={"description": "Subtitle file format.", "example": "srt"}
     )
     video_instance_id: int = field(
@@ -33,7 +32,7 @@ class CreateSubtitle:
     content: str = field(
         metadata={"description": "Subtitle content/text.", "example": "[音楽] 君を諦めない..."}
     )
-    file_format: FileFormat = field(
+    file_format: SubtitleExtension = field(
         metadata={"description": "Subtitle file format.", "example": "vtt"}
     )
     video_instance_id: int = field(
