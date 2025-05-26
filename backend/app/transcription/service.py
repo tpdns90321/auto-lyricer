@@ -14,14 +14,8 @@ class TranscriptionService:
     ) -> Transcription | None:
         return await self._repository.get_transcription_by_instance_id(instance_id)
 
-    async def get_list_of_transcriptions_by_video_instance_id(
-        self, video_instance_id: int
-    ) -> list[Transcription]:
-        return await self._repository.get_list_of_transcriptions_by_video_instance_id(
-            video_instance_id
-        )
 
     async def get_paginated_transcriptions(
-        self, page: int = 1, size: int = 10
+        self, page: int = 1, size: int = 10, video_instance_id: int | None = None
     ) -> PaginatedResponse[Transcription]:
-        return await self._repository.get_paginated_transcriptions(page, size)
+        return await self._repository.get_paginated_transcriptions(page, size, video_instance_id)

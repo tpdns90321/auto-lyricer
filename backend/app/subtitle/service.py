@@ -14,14 +14,8 @@ class SubtitleService:
     ) -> Subtitle | None:
         return await self._repository.get_subtitle_by_instance_id(instance_id)
 
-    async def get_list_of_subtitles_by_video_instance_id(
-        self, video_instance_id: int
-    ) -> list[Subtitle]:
-        return await self._repository.get_list_of_subtitles_by_video_instance_id(
-            video_instance_id
-        )
 
     async def get_paginated_subtitles(
-        self, page: int = 1, size: int = 10
+        self, page: int = 1, size: int = 10, video_instance_id: int | None = None
     ) -> PaginatedResponse[Subtitle]:
-        return await self._repository.get_paginated_subtitles(page, size)
+        return await self._repository.get_paginated_subtitles(page, size, video_instance_id)

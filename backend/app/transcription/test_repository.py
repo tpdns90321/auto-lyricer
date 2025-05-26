@@ -101,7 +101,7 @@ async def test_transcription_repository_get_transcription_by_instance_id_not_fou
 
 
 @pytest.mark.asyncio
-async def test_transcription_repository_get_list_of_transcriptions_by_video_instance_id(
+async def test_transcription_repository_get_paginated_transcriptions_by_video_instance_id(
     normal_transcription: Transcription, transcription_repository: TranscriptionRepository
 ):
     transcription2 = await transcription_repository.create_transcription(
@@ -111,22 +111,24 @@ async def test_transcription_repository_get_list_of_transcriptions_by_video_inst
             video_instance_id=1,
         )
     )
-    transcriptions = await transcription_repository.get_list_of_transcriptions_by_video_instance_id(
-        video_instance_id=normal_transcription.video_instance_id
+    result = await transcription_repository.get_paginated_transcriptions(
+        page=1, size=10, video_instance_id=normal_transcription.video_instance_id
     )
-    assert len(transcriptions) == 2
-    assert transcriptions[0].instance_id == normal_transcription.instance_id
-    assert transcriptions[1].instance_id == transcription2.instance_id
+    assert len(result.items) == 2
+    assert result.total == 2
+    assert result.items[0].instance_id == normal_transcription.instance_id
+    assert result.items[1].instance_id == transcription2.instance_id
 
 
 @pytest.mark.asyncio
-async def test_transcription_repository_get_list_of_transcriptions_by_video_instance_id_not_found(
+async def test_transcription_repository_get_paginated_transcriptions_by_video_instance_id_not_found(
     transcription_repository: TranscriptionRepository,
 ):
-    transcriptions = await transcription_repository.get_list_of_transcriptions_by_video_instance_id(
-        video_instance_id=9999
+    result = await transcription_repository.get_paginated_transcriptions(
+        page=1, size=10, video_instance_id=9999
     )
-    assert len(transcriptions) == 0
+    assert len(result.items) == 0
+    assert result.total == 0
 
 
 @pytest.mark.asyncio

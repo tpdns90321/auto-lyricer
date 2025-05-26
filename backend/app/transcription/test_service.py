@@ -105,22 +105,24 @@ async def test_transcription_service_get_transcription_by_instance_id_not_found(
 
 
 @pytest.mark.asyncio
-async def test_transcription_service_get_list_of_transcriptions_by_video_instance_id(
+async def test_transcription_service_get_paginated_transcriptions_by_video_instance_id(
     transcription_service: TranscriptionService, normal_transcription: Transcription
 ):
-    transcriptions = await transcription_service.get_list_of_transcriptions_by_video_instance_id(1)
-    assert len(transcriptions) == 1
-    assert transcriptions[0].instance_id == normal_transcription.instance_id
-    assert transcriptions[0].language == normal_transcription.language
-    assert transcriptions[0].content == normal_transcription.content
+    result = await transcription_service.get_paginated_transcriptions(page=1, size=10, video_instance_id=1)
+    assert len(result.items) == 1
+    assert result.total == 1
+    assert result.items[0].instance_id == normal_transcription.instance_id
+    assert result.items[0].language == normal_transcription.language
+    assert result.items[0].content == normal_transcription.content
 
 
 @pytest.mark.asyncio
-async def test_transcription_service_get_list_of_transcriptions_by_video_instance_id_not_found(
+async def test_transcription_service_get_paginated_transcriptions_by_video_instance_id_not_found(
     transcription_service: TranscriptionService,
 ):
-    transcriptions = await transcription_service.get_list_of_transcriptions_by_video_instance_id(9999)
-    assert len(transcriptions) == 0
+    result = await transcription_service.get_paginated_transcriptions(page=1, size=10, video_instance_id=9999)
+    assert len(result.items) == 0
+    assert result.total == 0
 
 
 @pytest.mark.asyncio

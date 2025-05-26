@@ -42,17 +42,6 @@ async def get_transcription_by_instance_id(
     return result
 
 
-@router.get(
-    "/video/{video_instance_id}",
-    response_model=list[Transcription],
-)
-@inject
-async def get_list_of_transcriptions_by_video_instance_id(
-    video_instance_id: int,
-    service: TranscriptionService = Depends(Provide[TranscriptionContainer.service]),
-) -> list[Transcription]:
-    result = await service.get_list_of_transcriptions_by_video_instance_id(video_instance_id)
-    return result
 
 
 @router.get(
@@ -63,6 +52,7 @@ async def get_list_of_transcriptions_by_video_instance_id(
 async def get_transcriptions(
     page: int = Query(1, ge=1, description="Page number, starting from 1"),
     size: int = Query(10, ge=1, le=100, description="Number of items per page"),
+    video_instance_id: int | None = Query(None, description="Filter by video instance ID"),
     service: TranscriptionService = Depends(Provide[TranscriptionContainer.service]),
 ) -> PaginatedResponse[Transcription]:
     """
@@ -70,5 +60,6 @@ async def get_transcriptions(
 
     - **page**: Page number (starting from 1)
     - **size**: Items per page (1-100, default 10)
+    - **video_instance_id**: Optional filter by video instance ID
     """
-    return await service.get_paginated_transcriptions(page, size)
+    return await service.get_paginated_transcriptions(page, size, video_instance_id)

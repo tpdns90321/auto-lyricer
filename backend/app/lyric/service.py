@@ -12,14 +12,8 @@ class LyricService:
     async def get_lyric_by_instance_id(self, instance_id: int) -> Lyric | None:
         return await self._lyric_repository.get_lyric_by_instance_id(instance_id)
 
-    async def get_list_of_lyrics_by_video_instance_id(
-        self, video_instance_id: int
-    ) -> list[Lyric]:
-        return await self._lyric_repository.get_list_of_lyrics_by_video_instance_id(
-            video_instance_id
-        )
 
     async def get_paginated_lyrics(
-        self, page: int = 1, size: int = 10
+        self, page: int = 1, size: int = 10, video_instance_id: int | None = None
     ) -> PaginatedResponse[Lyric]:
-        return await self._lyric_repository.get_paginated_lyrics(page, size)
+        return await self._lyric_repository.get_paginated_lyrics(page, size, video_instance_id)

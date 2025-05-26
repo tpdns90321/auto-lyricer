@@ -40,33 +40,30 @@ class LyricRepository:
                 return None
             return LyricDTO(**model.to_dict())
 
-    async def get_list_of_lyrics_by_video_instance_id(
-        self, video_instance_id: int
-    ) -> list[LyricDTO]:
-        async with self._session_factory() as session:
-            models = await session.execute(
-                Select(LyricModel).where(
-                    LyricModel.video_instance_id == video_instance_id
-                )
-            )
-            return [LyricDTO(**model.to_dict()) for model in models.scalars()]
 
     async def get_paginated_lyrics(
-        self, page: int = 1, size: int = 10
+        self, page: int = 1, size: int = 10, video_instance_id: int | None = None
     ) -> PaginatedResponse[LyricDTO]:
         async with self._session_factory() as session:
             # Calculate offset based on page and size
             offset = (page - 1) * size
 
+            # Build base query with optional filter
+            base_query = Select(LyricModel)
+            if video_instance_id is not None:
+                base_query = base_query.where(LyricModel.video_instance_id == video_instance_id)
+
             # Get total count
             total_query = Select(count(LyricModel.instance_id))
+            if video_instance_id is not None:
+                total_query = total_query.where(LyricModel.video_instance_id == video_instance_id)
             total_result = await session.execute(total_query)
             total = total_result.scalar()
             if total is None:
                 total = 0
 
             # Get paginated results
-            query = Select(LyricModel).limit(size).offset(offset)
+            query = base_query.limit(size).offset(offset)
             result = await session.execute(query)
 
             items = [LyricDTO(**model.to_dict()) for model in result.scalars()]

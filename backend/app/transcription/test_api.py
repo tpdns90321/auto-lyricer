@@ -102,22 +102,26 @@ async def test_get_transcription_by_invalid_instance_id(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_get_list_of_transcriptions_by_video_instance_id(
+async def test_get_paginated_transcriptions_by_video_instance_id(
     client: AsyncClient, create_transcription_success_response: Response
 ):
     response_data = create_transcription_success_response.json()
     video_instance_id = response_data["video_instance_id"]
-    response = await client.get(f"/transcription/video/{video_instance_id}")
-    assert len(response.json()) == 1
-    assert response.json()[0]["instance_id"] == response_data["instance_id"]
-    assert response.json()[0]["content"] == "test transcription"
-    assert response.json()[0]["language"] == Language.english.value
+    response = await client.get(f"/transcription/?video_instance_id={video_instance_id}")
+    data = response.json()
+    assert data["total"] == 1
+    assert len(data["items"]) == 1
+    assert data["items"][0]["instance_id"] == response_data["instance_id"]
+    assert data["items"][0]["content"] == "test transcription"
+    assert data["items"][0]["language"] == Language.english.value
 
 
 @pytest.mark.asyncio
-async def test_get_list_of_transcriptions_by_invalid_video_instance_id(client: AsyncClient):
-    response = await client.get("/transcription/video/999")
-    assert len(response.json()) == 0
+async def test_get_paginated_transcriptions_by_invalid_video_instance_id(client: AsyncClient):
+    response = await client.get("/transcription/?video_instance_id=999")
+    data = response.json()
+    assert data["total"] == 0
+    assert data["items"] == []
 
 
 @pytest.mark.asyncio

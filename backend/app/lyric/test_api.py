@@ -103,22 +103,26 @@ async def test_get_lyric_by_invalid_instance_id(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_get_list_of_lyrics_by_video_instance_id(
+async def test_get_paginated_lyrics_by_video_instance_id(
     client: AsyncClient, add_lyric_success_response: Response
 ):
     response_data = add_lyric_success_response.json()
     video_instance_id = response_data["video_instance_id"]
-    response = await client.get(f"/lyric/video/{video_instance_id}")
-    assert len(response.json()) == 1
-    assert response.json()[0]["instance_id"] == response_data["instance_id"]
-    assert response.json()[0]["content"] == "test lyric"
-    assert response.json()[0]["language"] == Language.english.value
+    response = await client.get(f"/lyric/?video_instance_id={video_instance_id}")
+    data = response.json()
+    assert data["total"] == 1
+    assert len(data["items"]) == 1
+    assert data["items"][0]["instance_id"] == response_data["instance_id"]
+    assert data["items"][0]["content"] == "test lyric"
+    assert data["items"][0]["language"] == Language.english.value
 
 
 @pytest.mark.asyncio
-async def test_get_list_of_lyrics_by_invalid_video_instance_id(client: AsyncClient):
-    response = await client.get("/lyric/video/999")
-    assert len(response.json()) == 0
+async def test_get_paginated_lyrics_by_invalid_video_instance_id(client: AsyncClient):
+    response = await client.get("/lyric/?video_instance_id=999")
+    data = response.json()
+    assert data["total"] == 0
+    assert data["items"] == []
 
 
 @pytest.mark.asyncio

@@ -105,22 +105,24 @@ async def test_lyric_service_get_lyric_by_instance_id_not_found(
 
 
 @pytest.mark.asyncio
-async def test_lyric_service_get_list_of_lyrics_by_video_instance_id(
+async def test_lyric_service_get_paginated_lyrics_by_video_instance_id(
     lyric_service: LyricService, normal_lyric: Lyric
 ):
-    lyrics = await lyric_service.get_list_of_lyrics_by_video_instance_id(1)
-    assert len(lyrics) == 1
-    assert lyrics[0].instance_id == normal_lyric.instance_id
-    assert lyrics[0].language == normal_lyric.language
-    assert lyrics[0].content == normal_lyric.content
+    result = await lyric_service.get_paginated_lyrics(page=1, size=10, video_instance_id=1)
+    assert len(result.items) == 1
+    assert result.total == 1
+    assert result.items[0].instance_id == normal_lyric.instance_id
+    assert result.items[0].language == normal_lyric.language
+    assert result.items[0].content == normal_lyric.content
 
 
 @pytest.mark.asyncio
-async def test_lyric_service_get_list_of_lyrics_by_video_instance_id_not_found(
+async def test_lyric_service_get_paginated_lyrics_by_video_instance_id_not_found(
     lyric_service: LyricService,
 ):
-    lyrics = await lyric_service.get_list_of_lyrics_by_video_instance_id(9999)
-    assert len(lyrics) == 0
+    result = await lyric_service.get_paginated_lyrics(page=1, size=10, video_instance_id=9999)
+    assert len(result.items) == 0
+    assert result.total == 0
 
 
 @pytest.mark.asyncio

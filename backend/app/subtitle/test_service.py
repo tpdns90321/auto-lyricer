@@ -111,7 +111,7 @@ async def test_get_subtitle_by_instance_id_not_found(subtitle_service):
 
 
 @pytest.mark.asyncio
-async def test_get_list_of_subtitles_by_video_instance_id(subtitle_service, video_id):
+async def test_get_paginated_subtitles_by_video_instance_id(subtitle_service, video_id):
     # Create multiple subtitles for the same video
     for i in range(5):
         dto = CreateSubtitle(
@@ -122,17 +122,19 @@ async def test_get_list_of_subtitles_by_video_instance_id(subtitle_service, vide
         )
         await subtitle_service.create_subtitle(dto)
 
-    result = await subtitle_service.get_list_of_subtitles_by_video_instance_id(video_id)
+    result = await subtitle_service.get_paginated_subtitles(page=1, size=10, video_instance_id=video_id)
 
-    assert len(result) == 5
-    assert all(subtitle.video_instance_id == video_id for subtitle in result)
+    assert len(result.items) == 5
+    assert result.total == 5
+    assert all(subtitle.video_instance_id == video_id for subtitle in result.items)
 
 
 @pytest.mark.asyncio
-async def test_get_list_of_subtitles_by_video_instance_id_not_found(subtitle_service):
-    result = await subtitle_service.get_list_of_subtitles_by_video_instance_id(999)
+async def test_get_paginated_subtitles_by_video_instance_id_not_found(subtitle_service):
+    result = await subtitle_service.get_paginated_subtitles(page=1, size=10, video_instance_id=999)
 
-    assert len(result) == 0
+    assert len(result.items) == 0
+    assert result.total == 0
 
 
 @pytest.mark.asyncio

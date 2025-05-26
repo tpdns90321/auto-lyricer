@@ -115,7 +115,7 @@ async def test_get_subtitle_by_instance_id_not_found(client):
 
 
 @pytest.mark.asyncio
-async def test_get_list_of_subtitles_by_video_instance_id(client, video_id):
+async def test_get_paginated_subtitles_by_video_instance_id(client, video_id):
     # Create multiple subtitles for the same video
     for i in range(5):
         await client.post(
@@ -128,20 +128,23 @@ async def test_get_list_of_subtitles_by_video_instance_id(client, video_id):
             },
         )
 
-    response = await client.get(f"/subtitles/video/{video_id}")
+    response = await client.get(f"/subtitles/?video_instance_id={video_id}")
 
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 5
-    assert all(subtitle["video_instance_id"] == video_id for subtitle in data)
+    assert data["total"] == 5
+    assert len(data["items"]) == 5
+    assert all(subtitle["video_instance_id"] == video_id for subtitle in data["items"])
 
 
 @pytest.mark.asyncio
-async def test_get_list_of_subtitles_by_video_instance_id_not_found(client):
-    response = await client.get("/subtitles/video/999")
+async def test_get_paginated_subtitles_by_video_instance_id_not_found(client):
+    response = await client.get("/subtitles/?video_instance_id=999")
 
     assert response.status_code == 200
-    assert response.json() == []
+    data = response.json()
+    assert data["total"] == 0
+    assert data["items"] == []
 
 
 @pytest.mark.asyncio

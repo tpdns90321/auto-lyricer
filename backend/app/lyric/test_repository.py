@@ -101,7 +101,7 @@ async def test_lyric_repository_get_lyric_by_instance_id_not_found(
 
 
 @pytest.mark.asyncio
-async def test_lyric_repository_get_list_of_lyrics_by_video_instance_id(
+async def test_lyric_repository_get_paginated_lyrics_by_video_instance_id(
     normal_lyric: Lyric, lyric_repository: LyricRepository
 ):
     lyric2 = await lyric_repository.add_lyric(
@@ -111,22 +111,24 @@ async def test_lyric_repository_get_list_of_lyrics_by_video_instance_id(
             video_instance_id=1,
         )
     )
-    lyrics = await lyric_repository.get_list_of_lyrics_by_video_instance_id(
-        video_instance_id=normal_lyric.video_instance_id
+    result = await lyric_repository.get_paginated_lyrics(
+        page=1, size=10, video_instance_id=normal_lyric.video_instance_id
     )
-    assert len(lyrics) == 2
-    assert lyrics[0].instance_id == normal_lyric.instance_id
-    assert lyrics[1].instance_id == lyric2.instance_id
+    assert len(result.items) == 2
+    assert result.total == 2
+    assert result.items[0].instance_id == normal_lyric.instance_id
+    assert result.items[1].instance_id == lyric2.instance_id
 
 
 @pytest.mark.asyncio
-async def test_lyric_repository_get_list_of_lyrics_by_video_instance_id_not_found(
+async def test_lyric_repository_get_paginated_lyrics_by_video_instance_id_not_found(
     lyric_repository: LyricRepository,
 ):
-    lyrics = await lyric_repository.get_list_of_lyrics_by_video_instance_id(
-        video_instance_id=9999
+    result = await lyric_repository.get_paginated_lyrics(
+        page=1, size=10, video_instance_id=9999
     )
-    assert len(lyrics) == 0
+    assert len(result.items) == 0
+    assert result.total == 0
 
 
 @pytest.mark.asyncio
