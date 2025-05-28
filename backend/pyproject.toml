@@ -5,6 +5,7 @@ description = "backend for auto-lyricer project"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "aiohttp>=3.12.2",
     "aiosqlite>=0.21.0",
     "asyncio-gevent>=0.2.3",
     "dependency-injector>=4.46.0",
