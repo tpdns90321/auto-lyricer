@@ -33,7 +33,7 @@ class _AudioWorker(ABC):
 
     async def _convert_audio(self, audio: Audio) -> Audio:
         """
-        Process the given audio data.
+        Convert the given audio data to a supported audio format if necessary.
 
         :param audio: The audio data to process.
         :return: The processed audio data.
