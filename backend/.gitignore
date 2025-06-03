@@ -3,3 +3,4 @@ __pycache__
 config.yaml
 main.db
 *.m4a
+*.aac

@@ -5,10 +5,10 @@ from enum import Enum
 
 
 class AudioExtension(Enum):
+    AAC = "aac"
     MP3 = "mp3"
-    WAV = "wav"
     OGG = "ogg"
-    M4A = "m4a"
+    WAV = "wav"
 
 
 @dataclass(frozen=True)

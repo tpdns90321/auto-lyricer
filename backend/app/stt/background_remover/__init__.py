@@ -1,1 +1,3 @@
-from .runpod_uvr import *
+from runpod_uvr import RunpodUVR
+
+RunpodUVR = RunpodUVR

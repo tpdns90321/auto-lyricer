@@ -7,6 +7,10 @@ from typing import Tuple
 
 
 class _AudioWorker(ABC):
+    """
+    Abstract base class for audio processing services.
+    """
+
     _supported_audio_extensions: Tuple[AudioExtension, ...]
 
     @abstractmethod
@@ -27,7 +31,7 @@ class _AudioWorker(ABC):
         """
         return self._supported_audio_extensions
 
-    async def _process_audio(self, audio: Audio) -> Audio:
+    async def _convert_audio(self, audio: Audio) -> Audio:
         """
         Process the given audio data.
 
@@ -63,12 +67,7 @@ class BackgroundRemover(_AudioWorker):
         :param audio: The audio data from which to remove background noise.
         :return: The audio data with background noise removed.
         """
-        target_audio: Audio = audio
-        if audio.extension not in self.supported_audio_extensions:
-            target_audio = await convert_audio_extension(
-                origin_audio=audio, target_extension=self.supported_audio_extensions[0]
-            )
-
+        target_audio: Audio = await self._convert_audio(audio)
         return await self._remove_background(target_audio)
 
     @property
@@ -101,12 +100,7 @@ class SpeechToText(_AudioWorker):
         :param audio: The audio data to transcribe.
         :return: The Transcription Object with transcribed text.
         """
-        target_audio: Audio = audio
-        if audio.extension not in self.supported_audio_extensions:
-            target_audio = await convert_audio_extension(
-                origin_audio=audio, target_extension=self.supported_audio_extensions[0]
-            )
-
+        target_audio: Audio = await self._convert_audio(audio)
         return await self._transcribe(target_audio)
 
     @property

@@ -25,6 +25,6 @@ async def test_retrieval_audio_of_video(retrieval: VideoRetrieval):
         "https://www.youtube.com/watch?v=LHvYrn3FAgI"
     )
     assert audio is not None
-    with open("app/video_retrieval/test_retrieval_audio_of_LHvYrn3FAgI.m4a", "rb") as f:
+    with open("app/video_retrieval/test_retrieval_audio_of_LHvYrn3FAgI.aac", "rb") as f:
         audio_content = f.read()
         assert audio == audio_content
