@@ -1,5 +1,5 @@
 from ..database import AIOSqlite
-from ..shared.supported import Language, SubtitleExtension
+from ..shared.supported import Language, SubtitleExtension, Platform as SupportedPlatform
 from ..video_retrieval import VideoRetrieval, VideoInfo
 from ..video.repository import VideoRepository
 from .repository import TranscriptionRepository
@@ -43,7 +43,10 @@ async def transcription_repository(
     await VideoRepository(
         database=database,
         retrieval=normal_video_retrieval,
-    ).retrieval_video("https://www.youtube.com/watch?v=testestest")
+    ).retrieve_and_save_video(
+        platform=SupportedPlatform.youtube,
+        video_id="testestest"
+    )
     return TranscriptionRepository(database=database)
 
 

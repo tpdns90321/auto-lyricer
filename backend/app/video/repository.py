@@ -15,7 +15,6 @@ from ..video_retrieval import VideoRetrieval
 from yt_dlp import DownloadError
 from sqlalchemy.sql import Select, and_
 from sqlalchemy.sql.functions import count
-from urllib.parse import urlparse
 
 
 class VideoRepository:
@@ -23,44 +22,23 @@ class VideoRepository:
         self._session_factory = database.session
         self._retrieval = retrieval
 
-    async def retrieval_video(self, url: str) -> VideoDTO:
-        parsed_url = urlparse(url)
-        platform = parsed_url.netloc
-        if parsed_url.netloc in ["www.youtube.com", "youtube.com", "youtu.be"]:
-            platform = SupportedPlatform.youtube
-            video_id: str | None = None
-            if parsed_url.netloc == "youtu.be":
-                video_id = parsed_url.path[1:]
-            else:
-                queries = {
-                    key: value
-                    for query in parsed_url.query.split("&")
-                    if (split := query.split("=")) and len(split) == 2
-                    for key, value in [split]
-                }
-                video_id = queries.get("v", None)
-
-            if not video_id:
-                raise NotFoundException(NotFoundThings.video_id)
-
-            model = await self.get_video_by_video_id(
-                platform=platform, video_id=video_id
-            )
-
-            if model:
-                return model
-        else:
-            raise UnsupportedPlatformException(parsed_url.netloc)
-
+    async def retrieve_and_save_video(
+        self, platform: SupportedPlatform, video_id: str
+    ) -> VideoDTO:
         try:
-            recreated_url = ""
+            # Construct URL based on platform
             if platform == SupportedPlatform.youtube:
-                recreated_url = f"https://www.youtube.com/watch?v={video_id}"
+                url = f"https://www.youtube.com/watch?v={video_id}"
+            else:
+                # Add support for other platforms here in the future
+                raise UnsupportedPlatformException(platform.value)
 
-            video = await self._retrieval.retrieval_video_info(recreated_url)
+            # Retrieve video information from external source
+            video = await self._retrieval.retrieval_video_info(url)
             if not video:
                 raise NotFoundException(NotFoundThings.video)
 
+            # Save video to database
             async with self._session_factory() as session:
                 model = VideoModel(
                     platform=platform,
@@ -76,6 +54,8 @@ class VideoRepository:
                 return _model_to_dto(model)
         except DownloadError:
             raise NotFoundException(NotFoundThings.video)
+        except UnsupportedPlatformException as e:
+            raise e
         except Exception as e:
             raise UnknownException(e)
 

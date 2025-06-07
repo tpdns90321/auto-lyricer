@@ -1,5 +1,5 @@
 from ..database import AIOSqlite
-from ..shared.supported import Language
+from ..shared.supported import Language, Platform as SupportedPlatform
 from ..video_retrieval.retrieval import VideoRetrieval
 from ..video_retrieval.type import VideoInfo
 from ..video.repository import VideoRepository
@@ -43,7 +43,10 @@ async def lyric_repository(
     await VideoRepository(
         database=database,
         retrieval=normal_video_retrieval,
-    ).retrieval_video("https://www.youtube.com/watch?v=testestest")
+    ).retrieve_and_save_video(
+        platform=SupportedPlatform.youtube,
+        video_id="testestest"
+    )
     return LyricRepository(database=database)
 
 
