@@ -16,7 +16,7 @@ class VideoContainer(containers.DeclarativeContainer):
 
     service = providers.Factory(
         VideoService,
-        repository=repository,
+        repository=repository.provided,
     )
 
     wiring_config = containers.WiringConfiguration(
