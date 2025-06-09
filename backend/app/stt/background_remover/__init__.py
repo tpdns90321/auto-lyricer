@@ -1,3 +1,3 @@
-from runpod_uvr import RunpodUVR
+from .runpod_uvr import RunpodUVR
 
-RunpodUVR = RunpodUVR
+__all__ = ["RunpodUVR"]
