@@ -66,8 +66,7 @@ async def get_videos(
     size: int = Query(10, ge=1, le=100, description="Number of items per page"),
     service: VideoService = Depends(Provide[VideoContainer.service]),
 ) -> PaginatedResponse[Video]:
-    """
-    Get paginated list of videos.
+    """Get paginated list of videos.
 
     - **page**: Page number (starting from 1)
     - **size**: Items per page (1-100, default 10)

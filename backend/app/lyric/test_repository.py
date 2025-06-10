@@ -43,10 +43,7 @@ async def lyric_repository(
     await VideoRepository(
         database=database,
         retrieval=normal_video_retrieval,
-    ).retrieve_and_save_video(
-        platform=SupportedPlatform.youtube,
-        video_id="testestest"
-    )
+    ).retrieve_and_save_video(platform=SupportedPlatform.youtube, video_id="testestest")
     return LyricRepository(database=database)
 
 

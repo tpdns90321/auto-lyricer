@@ -16,3 +16,92 @@ dependencies = [
     "sqlalchemy>=2.0.39",
     "yt-dlp>=2025.3.25",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.8.0",
+    "pyright>=1.1.390",
+    "pre-commit>=3.6.0",
+    "types-aiofiles",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+src = ["app"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "I",      # isort
+    "N",      # pep8-naming
+    "D",      # pydocstyle
+    "ASYNC",  # flake8-async
+    "S",      # bandit security
+]
+
+ignore = [
+    "D100", "D101", "D102", "D103", "D104", "D105",  # Missing docstring
+    "S101",  # Use of assert
+    "I001",  # Import order - disabled due to gevent monkey patching requirements
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*/test_*.py" = ["S101", "D"]
+"*/tests/*" = ["S101", "D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+include = ["app", "main.py"]
+exclude = [
+    "**/__pycache__", 
+    "**/.pytest_cache",
+    "**/.venv",
+]
+pythonVersion = "3.11"
+typeCheckingMode = "basic"  # More practical than strict for legacy codebases
+
+# Ignore missing type stubs for gevent and other dependencies
+reportMissingImports = false
+reportMissingTypeStubs = false
+
+# Relax strict rules for compatibility with FastAPI/SQLAlchemy patterns
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportUnknownParameterType = false
+reportMissingParameterType = false
+
+# Allow star imports for the database models pattern
+reportWildcardImportFromLibrary = false
+
+# Relax some rules for test files and dependency injection
+reportPrivateUsage = false
+reportAttributeAccessIssue = false
+reportMissingTypeArgument = false
+
+# Configure for async/await and dependency injection patterns  
+reportUnnecessaryTypeIgnoreComment = false  # Disabled due to pyright bundled typeshed issues
+reportUnusedImport = true
+reportUnusedVariable = false  # Disabled due to test fixtures
+
+[dependency-groups]
+dev = [
+    "types-gevent>=25.4.0.20250516",
+    "types-pyyaml>=6.0.12.20250516",
+]

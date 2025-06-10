@@ -39,7 +39,7 @@ class VideoService:
                     if (split := query.split("=")) and len(split) == 2
                     for key, value in [split]
                 }
-                video_id = queries.get("v", None)
+                video_id = queries.get("v")
 
             if not video_id:
                 raise NotFoundException(NotFoundThings.video_id)
@@ -59,8 +59,7 @@ class VideoService:
     async def get_paginated_videos(
         self, page: int = 1, size: int = 10
     ) -> PaginatedResponse[Video]:
-        """
-        Get a paginated list of videos.
+        """Get a paginated list of videos.
 
         Args:
             page: The page number, starting from 1.

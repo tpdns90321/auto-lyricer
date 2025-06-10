@@ -45,7 +45,6 @@ class SubtitleRepository:
                 return None
             return SubtitleDTO(**model.to_dict())
 
-
     async def get_paginated_subtitles(
         self, page: int = 1, size: int = 10, video_instance_id: int | None = None
     ) -> PaginatedResponse[SubtitleDTO]:
@@ -56,12 +55,16 @@ class SubtitleRepository:
             # Build base query with optional filter
             base_query = Select(SubtitleModel)
             if video_instance_id is not None:
-                base_query = base_query.where(SubtitleModel.video_instance_id == video_instance_id)
+                base_query = base_query.where(
+                    SubtitleModel.video_instance_id == video_instance_id
+                )
 
             # Get total count
             total_query = Select(count(SubtitleModel.instance_id))
             if video_instance_id is not None:
-                total_query = total_query.where(SubtitleModel.video_instance_id == video_instance_id)
+                total_query = total_query.where(
+                    SubtitleModel.video_instance_id == video_instance_id
+                )
             total_result = await session.execute(total_query)
             total = total_result.scalar()
             if total is None:

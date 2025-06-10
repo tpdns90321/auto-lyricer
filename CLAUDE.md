@@ -9,6 +9,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Install dependencies
 uv sync
 
+# Install development dependencies
+uv sync --extra dev
+
 # Start development server
 uv run python main.py  # Uses uvicorn internally
 
@@ -17,6 +20,23 @@ uv run pytest
 
 # Run specific test file
 uv run pytest app/video/test_service.py
+
+# Linting and formatting
+uv run ruff check .              # Check for linting issues
+uv run ruff check . --fix        # Fix auto-fixable issues (preserves import order)
+uv run ruff format .             # Format code (does not reorder imports)
+
+# Type checking
+uv run pyright .                 # Run type checking
+
+# Combined check (recommended for CI)
+uv run ruff check . && uv run ruff format --check . && uv run pyright .
+
+# Pre-commit setup (one-time)
+uv run pre-commit install
+
+# Note: Pre-commit runs ruff but not pyright (due to venv dependencies)
+# Always run pyright manually before pushing
 ```
 
 ## Architecture Overview
@@ -69,3 +89,19 @@ This is an **Auto-Lyricer** application that synchronizes lyrics with YouTube vi
 - Services handle business logic and validation
 - Use dependency injection rather than global imports, because it has some problems with monkey patching.
 - Data models use dataclasses for type safety and simplicity
+
+### ⚠️ Critical: Import Order & Gevent Monkey Patching
+
+**DO NOT reorder imports in this project!** This backend uses gevent's monkey patching which requires very specific import order:
+
+1. **Gevent imports must come first** - The `monkey_patch.py` module must be imported before any other async libraries
+2. **Import order is critical** - Libraries must be loaded in the correct sequence for monkey patching to work
+3. **Ruff import sorting is disabled** - We've disabled `I001` (import order) rule in the linting configuration
+4. **Manual import management** - Always preserve existing import order when editing files
+
+If import order is disrupted, you may see errors like:
+- `MonkeyPatchWarning: Monkey-patching ssl after ssl has already been imported`
+- Async operations not working correctly
+- Circular import issues
+
+When adding new imports, place them appropriately within the existing structure rather than letting auto-formatters reorganize them.

@@ -1,11 +1,12 @@
-
 from ..shared.pagination import *
 from .model import SupportedPlatform
 from dataclasses import dataclass, field
 
+
 @dataclass(frozen=True)
 class Video:
     """Represents a video entity."""
+
     instance_id: int = field(
         metadata={
             "description": "Unique video record ID.",
@@ -59,6 +60,10 @@ class Video:
 @dataclass(frozen=True)
 class RetrievalVideo:
     """Request schema for video retrieval by URL."""
+
     video_url: str = field(
-        metadata={"description": "URL of the video to retrieve.", "example": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}
+        metadata={
+            "description": "URL of the video to retrieve.",
+            "example": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        }
     )

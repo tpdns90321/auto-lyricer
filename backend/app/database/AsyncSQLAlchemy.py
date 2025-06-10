@@ -1,12 +1,12 @@
 import asyncio
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
-    create_async_engine,
     AsyncSession,
     async_scoped_session,
     async_sessionmaker,
+    create_async_engine,
 )
 from sqlalchemy.orm import DeclarativeBase, MappedAsDataclass
 
@@ -52,8 +52,7 @@ class AsyncSQLAlchemy:
             await conn.run_sync(self._base.metadata.create_all)
 
     async def reset_database(self) -> None:
-        """
-        Drop all tables and recreate them.
+        """Drop all tables and recreate them.
         Just for testing purposes.
         DO NOT USE IN PRODUCTION
         """

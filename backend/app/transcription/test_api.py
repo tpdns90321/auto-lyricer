@@ -47,7 +47,9 @@ async def video_id():
 
 
 @pytest_asyncio.fixture
-async def create_transcription_success_response(client: AsyncClient, video_id: int) -> Response:
+async def create_transcription_success_response(
+    client: AsyncClient, video_id: int
+) -> Response:
     data: CreateTranscription = CreateTranscription(
         video_instance_id=video_id,
         content="test transcription",
@@ -62,7 +64,9 @@ async def create_transcription_success_response(client: AsyncClient, video_id: i
 
 
 @pytest.mark.asyncio
-async def test_create_transcription_success(create_transcription_success_response: Response):
+async def test_create_transcription_success(
+    create_transcription_success_response: Response,
+):
     if create_transcription_success_response.status_code != 200:
         print(f"Response status: {create_transcription_success_response.status_code}")
         print(f"Response body: {create_transcription_success_response.text}")
@@ -116,7 +120,9 @@ async def test_get_paginated_transcriptions_by_video_instance_id(
 ):
     response_data = create_transcription_success_response.json()
     video_instance_id = response_data["video_instance_id"]
-    response = await client.get(f"/transcription/?video_instance_id={video_instance_id}")
+    response = await client.get(
+        f"/transcription/?video_instance_id={video_instance_id}"
+    )
     data = response.json()
     assert data["total"] == 1
     assert len(data["items"]) == 1
@@ -126,7 +132,9 @@ async def test_get_paginated_transcriptions_by_video_instance_id(
 
 
 @pytest.mark.asyncio
-async def test_get_paginated_transcriptions_by_invalid_video_instance_id(client: AsyncClient):
+async def test_get_paginated_transcriptions_by_invalid_video_instance_id(
+    client: AsyncClient,
+):
     response = await client.get("/transcription/?video_instance_id=999")
     data = response.json()
     assert data["total"] == 0

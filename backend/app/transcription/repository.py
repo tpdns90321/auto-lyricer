@@ -47,7 +47,6 @@ class TranscriptionRepository:
                 return None
             return TranscriptionDTO(**model.to_dict())
 
-
     async def get_paginated_transcriptions(
         self, page: int = 1, size: int = 10, video_instance_id: int | None = None
     ) -> PaginatedResponse[TranscriptionDTO]:
@@ -58,12 +57,16 @@ class TranscriptionRepository:
             # Build base query with optional filter
             base_query = Select(TranscriptionModel)
             if video_instance_id is not None:
-                base_query = base_query.where(TranscriptionModel.video_instance_id == video_instance_id)
+                base_query = base_query.where(
+                    TranscriptionModel.video_instance_id == video_instance_id
+                )
 
             # Get total count
             total_query = Select(count(TranscriptionModel.instance_id))
             if video_instance_id is not None:
-                total_query = total_query.where(TranscriptionModel.video_instance_id == video_instance_id)
+                total_query = total_query.where(
+                    TranscriptionModel.video_instance_id == video_instance_id
+                )
             total_result = await session.execute(total_query)
             total = total_result.scalar()
             if total is None:

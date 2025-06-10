@@ -61,8 +61,7 @@ async def failed_repository(database, failed_video_retrieval) -> VideoRepository
 @pytest_asyncio.fixture
 async def normal_video(normal_repository) -> Video:
     return await normal_repository.retrieve_and_save_video(
-        platform=SupportedPlatform.youtube,
-        video_id="testestest"
+        platform=SupportedPlatform.youtube, video_id="testestest"
     )
 
 
@@ -81,8 +80,7 @@ async def test_retrieve_and_save_video_normal(normal_video: Video):
 async def test_retrieve_and_save_video_not_found(failed_repository: VideoRepository):
     with pytest.raises(NotFoundException):
         await failed_repository.retrieve_and_save_video(
-            platform=SupportedPlatform.youtube,
-            video_id="aaaaaaaaaaa"
+            platform=SupportedPlatform.youtube, video_id="aaaaaaaaaaa"
         )
 
 
@@ -90,23 +88,26 @@ async def test_retrieve_and_save_video_not_found(failed_repository: VideoReposit
 async def test_retrieve_and_save_video_invalid_id(failed_repository: VideoRepository):
     with pytest.raises(NotFoundException):
         await failed_repository.retrieve_and_save_video(
-            platform=SupportedPlatform.youtube,
-            video_id=""
+            platform=SupportedPlatform.youtube, video_id=""
         )
 
 
 @pytest.mark.asyncio
-async def test_retrieve_and_save_video_unsupported_platform(normal_repository: VideoRepository):
+async def test_retrieve_and_save_video_unsupported_platform(
+    normal_repository: VideoRepository,
+):
     # For now, this test would need to be restructured since the platform check is in service
     # We can test that unsupported platforms raise an error
     with pytest.raises(UnsupportedPlatformException):
         # Create a fake unsupported platform
         from enum import Enum
+
         class FakePlatform(Enum):
             unsupported = "unsupported"
+
         await normal_repository.retrieve_and_save_video(
             platform=FakePlatform.unsupported,  # type: ignore
-            video_id="test"
+            video_id="test",
         )
 
 
@@ -117,8 +118,7 @@ async def test_retrieve_and_save_video_duplicate(
     # Test that trying to retrieve the same video returns the existing one
     # This is now handled by the service layer, so we test get_video_by_video_id
     second_try = await normal_repository.get_video_by_video_id(
-        platform=SupportedPlatform.youtube,
-        video_id="testestest"
+        platform=SupportedPlatform.youtube, video_id="testestest"
     )
     assert normal_video.instance_id == 1
     assert second_try is not None
@@ -185,8 +185,7 @@ async def test_get_paginated_videos(normal_repository: VideoRepository):
             )
         )
         await normal_repository.retrieve_and_save_video(
-            platform=SupportedPlatform.youtube,
-            video_id=f"test{i}"
+            platform=SupportedPlatform.youtube, video_id=f"test{i}"
         )
 
     # Test first page with default values (page=1, size=10)

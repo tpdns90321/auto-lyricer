@@ -1,5 +1,9 @@
 from ..database import AIOSqlite
-from ..shared.supported import Language, SubtitleExtension, Platform as SupportedPlatform
+from ..shared.supported import (
+    Language,
+    SubtitleExtension,
+    Platform as SupportedPlatform,
+)
 from ..video_retrieval.retrieval import VideoRetrieval
 from ..video_retrieval.type import VideoInfo
 from ..video.repository import VideoRepository
@@ -43,15 +47,14 @@ async def transcription_repository(
     await VideoRepository(
         database=database,
         retrieval=normal_video_retrieval,
-    ).retrieve_and_save_video(
-        platform=SupportedPlatform.youtube,
-        video_id="testestest"
-    )
+    ).retrieve_and_save_video(platform=SupportedPlatform.youtube, video_id="testestest")
     return TranscriptionRepository(database=database)
 
 
 @pytest_asyncio.fixture
-async def normal_transcription(transcription_repository: TranscriptionRepository) -> Transcription:
+async def normal_transcription(
+    transcription_repository: TranscriptionRepository,
+) -> Transcription:
     return await transcription_repository.create_transcription(
         CreateTranscription(
             language=Language.english,
@@ -63,7 +66,9 @@ async def normal_transcription(transcription_repository: TranscriptionRepository
 
 
 @pytest.mark.asyncio
-async def test_transcription_repository_create_transcription(normal_transcription: Transcription):
+async def test_transcription_repository_create_transcription(
+    normal_transcription: Transcription,
+):
     assert normal_transcription.instance_id == 1
 
 
@@ -86,7 +91,8 @@ async def test_transcription_repository_create_transcription_with_invalid_video(
 
 @pytest.mark.asyncio
 async def test_transcription_repository_get_transcription_by_instance_id(
-    normal_transcription: Transcription, transcription_repository: TranscriptionRepository
+    normal_transcription: Transcription,
+    transcription_repository: TranscriptionRepository,
 ):
     transcription = await transcription_repository.get_transcription_by_instance_id(
         instance_id=normal_transcription.instance_id
@@ -101,13 +107,16 @@ async def test_transcription_repository_get_transcription_by_instance_id(
 async def test_transcription_repository_get_transcription_by_instance_id_not_found(
     transcription_repository: TranscriptionRepository,
 ):
-    transcription = await transcription_repository.get_transcription_by_instance_id(instance_id=9999)
+    transcription = await transcription_repository.get_transcription_by_instance_id(
+        instance_id=9999
+    )
     assert transcription is None
 
 
 @pytest.mark.asyncio
 async def test_transcription_repository_get_paginated_transcriptions_by_video_instance_id(
-    normal_transcription: Transcription, transcription_repository: TranscriptionRepository
+    normal_transcription: Transcription,
+    transcription_repository: TranscriptionRepository,
 ):
     transcription2 = await transcription_repository.create_transcription(
         CreateTranscription(
@@ -139,15 +148,20 @@ async def test_transcription_repository_get_paginated_transcriptions_by_video_in
 
 @pytest.mark.asyncio
 async def test_transcription_repository_get_paginated_transcriptions(
-    transcription_repository: TranscriptionRepository, normal_transcription: Transcription
+    transcription_repository: TranscriptionRepository,
+    normal_transcription: Transcription,
 ):
     # Add several more transcriptions for pagination testing
-    for i in range(15):  # Adding 15 more transcriptions, giving us 16 total with normal_transcription
+    for i in range(
+        15
+    ):  # Adding 15 more transcriptions, giving us 16 total with normal_transcription
         await transcription_repository.create_transcription(
             CreateTranscription(
                 language=Language.english,
                 content=f"Transcription content {i}",
-                subtitle_extension=SubtitleExtension.SRT if i % 2 == 0 else SubtitleExtension.VTT,
+                subtitle_extension=SubtitleExtension.SRT
+                if i % 2 == 0
+                else SubtitleExtension.VTT,
                 video_instance_id=1,
             )
         )
@@ -167,7 +181,9 @@ async def test_transcription_repository_get_paginated_transcriptions(
     assert len(paginated.items) == 6
 
     # Test with custom page size
-    paginated = await transcription_repository.get_paginated_transcriptions(page=1, size=5)
+    paginated = await transcription_repository.get_paginated_transcriptions(
+        page=1, size=5
+    )
     assert paginated.page == 1
     assert paginated.size == 5
     assert paginated.total == 16

@@ -4,8 +4,7 @@ from .abstract import BackgroundRemover, SpeechToText
 
 class Transcribe:
     def __init__(self, background_remover: BackgroundRemover, stt: SpeechToText):
-        """
-        Initialize the speech-to-text process with background remover and STT service.
+        """Initialize the speech-to-text process with background remover and STT service.
 
         :param background_remover: An instance of BackgroundRemoverAbstract.
         :param stt: An instance of SpeechToTextAbstract.

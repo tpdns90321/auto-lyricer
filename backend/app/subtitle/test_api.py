@@ -28,8 +28,8 @@ async def client():
 @pytest_asyncio.fixture
 async def video_id():
     """Create a test video in the database to use for foreign key constraints"""
-    from ..video.model import Video
     from ..shared.supported import Platform
+    from ..video.model import Video
 
     async with database.session() as session:
         video = Video(

@@ -10,7 +10,9 @@ from dependency_injector.wiring import inject, Provide
 router = APIRouter(prefix="/subtitles", tags=["subtitles"])
 
 
-@router.post("/", response_model=Subtitle, responses={404: {"description": "Not found"}})
+@router.post(
+    "/", response_model=Subtitle, responses={404: {"description": "Not found"}}
+)
 @inject
 async def create_subtitle(
     dto: CreateSubtitle,
@@ -42,8 +44,6 @@ async def get_subtitle_by_instance_id(
     return result
 
 
-
-
 @router.get(
     "/",
     response_model=PaginatedResponse[Subtitle],
@@ -52,11 +52,12 @@ async def get_subtitle_by_instance_id(
 async def get_subtitles(
     page: int = Query(1, ge=1, description="Page number, starting from 1"),
     size: int = Query(10, ge=1, le=100, description="Number of items per page"),
-    video_instance_id: int | None = Query(None, description="Filter by video instance ID"),
+    video_instance_id: int | None = Query(
+        None, description="Filter by video instance ID"
+    ),
     service: SubtitleService = Depends(Provide[SubtitleContainer.service]),
 ) -> PaginatedResponse[Subtitle]:
-    """
-    Get paginated list of subtitles.
+    """Get paginated list of subtitles.
 
     - **page**: Page number (starting from 1)
     - **size**: Items per page (1-100, default 10)

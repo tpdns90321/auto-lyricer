@@ -15,9 +15,7 @@ class AIOSqlite(AsyncSQLAlchemy):
         event.listen(self._engine.sync_engine, "connect", self._enable_foreign_keys)
 
     def _enable_foreign_keys(self, dbapi_conn, _):
-        """
-        Enable foreign keys for SQLite.
-        """
+        """Enable foreign keys for SQLite."""
         cursor = dbapi_conn.cursor()
         cursor.execute("PRAGMA foreign_keys=ON;")
         cursor.close()

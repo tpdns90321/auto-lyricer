@@ -1,11 +1,12 @@
-
 from ..shared.supported import Language
 from ..shared.pagination import *
 from dataclasses import dataclass, field
 
+
 @dataclass(frozen=True)
 class Lyric:
     """Represents a lyric associated with a video."""
+
     instance_id: int = field(
         metadata={
             "description": "Unique lyric record ID.",
@@ -35,6 +36,7 @@ class Lyric:
 @dataclass(frozen=True)
 class AddLyric:
     """Request schema for creating a new lyric."""
+
     language: Language = field(
         metadata={
             "description": "Language code for the lyric.",

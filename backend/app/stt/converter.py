@@ -7,8 +7,7 @@ from io import BytesIO
 async def convert_audio_extension(
     origin_audio: Audio, target_extension: AudioExtension
 ) -> Audio:
-    """
-    Convert audio binary data to the specified audio extension.
+    """Convert audio binary data to the specified audio extension.
 
     :param origin_binary: The original audio binary data.
     :param target_extension: The target audio extension to convert to.

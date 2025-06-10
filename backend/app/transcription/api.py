@@ -10,7 +10,9 @@ from dependency_injector.wiring import inject, Provide
 router = APIRouter(prefix="/transcription", tags=["transcription"])
 
 
-@router.post("/", response_model=Transcription, responses={404: {"description": "Not found"}})
+@router.post(
+    "/", response_model=Transcription, responses={404: {"description": "Not found"}}
+)
 @inject
 async def create_transcription(
     dto: CreateTranscription,
@@ -42,8 +44,6 @@ async def get_transcription_by_instance_id(
     return result
 
 
-
-
 @router.get(
     "/",
     response_model=PaginatedResponse[Transcription],
@@ -52,11 +52,12 @@ async def get_transcription_by_instance_id(
 async def get_transcriptions(
     page: int = Query(1, ge=1, description="Page number, starting from 1"),
     size: int = Query(10, ge=1, le=100, description="Number of items per page"),
-    video_instance_id: int | None = Query(None, description="Filter by video instance ID"),
+    video_instance_id: int | None = Query(
+        None, description="Filter by video instance ID"
+    ),
     service: TranscriptionService = Depends(Provide[TranscriptionContainer.service]),
 ) -> PaginatedResponse[Transcription]:
-    """
-    Get paginated list of transcriptions.
+    """Get paginated list of transcriptions.
 
     - **page**: Page number (starting from 1)
     - **size**: Items per page (1-100, default 10)

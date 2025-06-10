@@ -1,0 +1,10 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.13
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-zero]  # Don't fail commit on unfixable issues
+      - id: ruff-format
+
+  # Note: pyright disabled in pre-commit due to virtual environment requirements
+  # Run manually with: uv run pyright .

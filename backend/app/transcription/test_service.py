@@ -1,5 +1,9 @@
 from ..database import AIOSqlite
-from ..shared.supported import Language, SubtitleExtension, Platform as SupportedPlatform
+from ..shared.supported import (
+    Language,
+    SubtitleExtension,
+    Platform as SupportedPlatform,
+)
 from ..video_retrieval import VideoRetrieval, VideoInfo
 from ..video.repository import VideoRepository
 from .repository import TranscriptionRepository
@@ -43,20 +47,21 @@ async def transcription_repository(
     await VideoRepository(
         database=database,
         retrieval=normal_video_retrieval,
-    ).retrieve_and_save_video(
-        platform=SupportedPlatform.youtube,
-        video_id="testestest"
-    )
+    ).retrieve_and_save_video(platform=SupportedPlatform.youtube, video_id="testestest")
     return TranscriptionRepository(database=database)
 
 
 @pytest_asyncio.fixture
-async def transcription_service(transcription_repository: TranscriptionRepository) -> TranscriptionService:
+async def transcription_service(
+    transcription_repository: TranscriptionRepository,
+) -> TranscriptionService:
     return TranscriptionService(repository=transcription_repository)
 
 
 @pytest_asyncio.fixture
-async def normal_transcription(transcription_service: TranscriptionService) -> Transcription:
+async def normal_transcription(
+    transcription_service: TranscriptionService,
+) -> Transcription:
     return await transcription_service.create_transcription(
         CreateTranscription(
             language=Language.english,
@@ -68,7 +73,9 @@ async def normal_transcription(transcription_service: TranscriptionService) -> T
 
 
 @pytest.mark.asyncio
-async def test_transcription_service_create_transcription(normal_transcription: Transcription):
+async def test_transcription_service_create_transcription(
+    normal_transcription: Transcription,
+):
     assert normal_transcription.instance_id == 1
     assert normal_transcription.language == Language.english
     assert normal_transcription.content == "Hello, this is a test transcription!"
@@ -113,7 +120,9 @@ async def test_transcription_service_get_transcription_by_instance_id_not_found(
 async def test_transcription_service_get_paginated_transcriptions_by_video_instance_id(
     transcription_service: TranscriptionService, normal_transcription: Transcription
 ):
-    result = await transcription_service.get_paginated_transcriptions(page=1, size=10, video_instance_id=1)
+    result = await transcription_service.get_paginated_transcriptions(
+        page=1, size=10, video_instance_id=1
+    )
     assert len(result.items) == 1
     assert result.total == 1
     assert result.items[0].instance_id == normal_transcription.instance_id
@@ -125,7 +134,9 @@ async def test_transcription_service_get_paginated_transcriptions_by_video_insta
 async def test_transcription_service_get_paginated_transcriptions_by_video_instance_id_not_found(
     transcription_service: TranscriptionService,
 ):
-    result = await transcription_service.get_paginated_transcriptions(page=1, size=10, video_instance_id=9999)
+    result = await transcription_service.get_paginated_transcriptions(
+        page=1, size=10, video_instance_id=9999
+    )
     assert len(result.items) == 0
     assert result.total == 0
 
@@ -135,7 +146,9 @@ async def test_transcription_service_get_paginated_transcriptions(
     transcription_service: TranscriptionService, normal_transcription: Transcription
 ):
     # Add several more transcriptions for pagination testing
-    for i in range(15):  # Adding 15 more transcriptions, giving us 16 total with normal_transcription
+    for i in range(
+        15
+    ):  # Adding 15 more transcriptions, giving us 16 total with normal_transcription
         await transcription_service.create_transcription(
             CreateTranscription(
                 language=Language.english,

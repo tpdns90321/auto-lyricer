@@ -40,7 +40,6 @@ class LyricRepository:
                 return None
             return LyricDTO(**model.to_dict())
 
-
     async def get_paginated_lyrics(
         self, page: int = 1, size: int = 10, video_instance_id: int | None = None
     ) -> PaginatedResponse[LyricDTO]:
@@ -51,12 +50,16 @@ class LyricRepository:
             # Build base query with optional filter
             base_query = Select(LyricModel)
             if video_instance_id is not None:
-                base_query = base_query.where(LyricModel.video_instance_id == video_instance_id)
+                base_query = base_query.where(
+                    LyricModel.video_instance_id == video_instance_id
+                )
 
             # Get total count
             total_query = Select(count(LyricModel.instance_id))
             if video_instance_id is not None:
-                total_query = total_query.where(LyricModel.video_instance_id == video_instance_id)
+                total_query = total_query.where(
+                    LyricModel.video_instance_id == video_instance_id
+                )
             total_result = await session.execute(total_query)
             total = total_result.scalar()
             if total is None:

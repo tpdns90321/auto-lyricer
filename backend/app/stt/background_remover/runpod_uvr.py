@@ -1,7 +1,6 @@
 from ..abstract import BackgroundRemover
 from ..data import Audio, AudioExtension
 
-from typing import Dict
 from dataclasses import dataclass
 from aiohttp import ClientSession
 from base64 import b64encode, b64decode
@@ -15,7 +14,7 @@ class RunpodUVRConfig:
 
 @dataclass(frozen=True)
 class RunpodUVRResponse:
-    output: Dict[str, str]
+    output: dict[str, str]
 
 
 class RunpodUVR(BackgroundRemover):
@@ -26,7 +25,7 @@ class RunpodUVR(BackgroundRemover):
     )
     _output_audio_extension = AudioExtension.OGG
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         self._config = RunpodUVRConfig(**config)
 
         if not self._config.RUNPOD_API_KEY:

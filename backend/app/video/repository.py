@@ -91,8 +91,7 @@ class VideoRepository:
     async def get_paginated_videos(
         self, page: int = 1, size: int = 10
     ) -> PaginatedResponse[VideoDTO]:
-        """
-        Get a paginated list of videos.
+        """Get a paginated list of videos.
 
         Args:
             page: The page number, starting from 1.

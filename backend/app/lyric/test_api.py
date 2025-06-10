@@ -40,8 +40,7 @@ app.include_router(router)
 async def client():
     await database.reset_database()
     await videoContainer.repository().retrieve_and_save_video(
-        platform=SupportedPlatform.youtube,
-        video_id="testestest"
+        platform=SupportedPlatform.youtube, video_id="testestest"
     )
     return AsyncClient(transport=ASGITransport(app=app), base_url="http://test")
 

@@ -12,8 +12,8 @@ import pytest_asyncio
 @pytest_asyncio.fixture
 async def video_id(database) -> int:
     """Create a test video in the database to use for foreign key constraints"""
-    from ..video.model import Video
     from ..shared.supported import Platform
+    from ..video.model import Video
 
     async with database.session() as session:
         video = Video(
@@ -121,7 +121,9 @@ async def test_get_paginated_subtitles_by_video_instance_id(subtitle_service, vi
         )
         await subtitle_service.create_subtitle(dto)
 
-    result = await subtitle_service.get_paginated_subtitles(page=1, size=10, video_instance_id=video_id)
+    result = await subtitle_service.get_paginated_subtitles(
+        page=1, size=10, video_instance_id=video_id
+    )
 
     assert len(result.items) == 5
     assert result.total == 5
@@ -130,7 +132,9 @@ async def test_get_paginated_subtitles_by_video_instance_id(subtitle_service, vi
 
 @pytest.mark.asyncio
 async def test_get_paginated_subtitles_by_video_instance_id_not_found(subtitle_service):
-    result = await subtitle_service.get_paginated_subtitles(page=1, size=10, video_instance_id=999)
+    result = await subtitle_service.get_paginated_subtitles(
+        page=1, size=10, video_instance_id=999
+    )
 
     assert len(result.items) == 0
     assert result.total == 0

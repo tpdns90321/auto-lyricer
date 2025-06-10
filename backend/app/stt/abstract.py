@@ -3,37 +3,31 @@ from .converter import convert_audio_extension
 from ..shared.supported import SubtitleExtension
 
 from abc import ABC, abstractmethod
-from typing import Tuple
 
 
 class _AudioWorker(ABC):
-    """
-    Abstract base class for audio processing services.
-    """
+    """Abstract base class for audio processing services."""
 
-    _supported_audio_extensions: Tuple[AudioExtension, ...]
+    _supported_audio_extensions: tuple[AudioExtension, ...]
 
     @abstractmethod
     def __init__(self, config: dict):
-        """
-        Initialize the background remover service with the given configuration.
+        """Initialize the background remover service with the given configuration.
 
         :param config: Configuration dictionary for the background remover service.
         """
         pass
 
     @property
-    def supported_audio_extensions(self) -> Tuple[AudioExtension, ...]:
-        """
-        Get the list of audio extensions supported by the background remover service.
+    def supported_audio_extensions(self) -> tuple[AudioExtension, ...]:
+        """Get the list of audio extensions supported by the background remover service.
 
         :return: A list of supported audio extensions.
         """
         return self._supported_audio_extensions
 
     async def _convert_audio(self, audio: Audio) -> Audio:
-        """
-        Convert the given audio data to a supported audio format if necessary.
+        """Convert the given audio data to a supported audio format if necessary.
 
         :param audio: The audio data to process.
         :return: The processed audio data.
@@ -52,8 +46,7 @@ class BackgroundRemover(_AudioWorker):
 
     @abstractmethod
     async def _remove_background(self, audio: Audio) -> Audio:
-        """
-        Remove the background noise from the given audio.
+        """Remove the background noise from the given audio.
 
         :param audio: The audio data from which to remove background noise.
         :return: The audio data with background noise removed.
@@ -61,8 +54,7 @@ class BackgroundRemover(_AudioWorker):
         pass
 
     async def remove_background(self, audio: Audio) -> Audio:
-        """
-        Remove the background noise from the given audio.
+        """Remove the background noise from the given audio.
 
         :param audio: The audio data from which to remove background noise.
         :return: The audio data with background noise removed.
@@ -72,8 +64,7 @@ class BackgroundRemover(_AudioWorker):
 
     @property
     def output_audio_extension(self) -> AudioExtension:
-        """
-        Get the output audio extension after background removal.
+        """Get the output audio extension after background removal.
 
         :return: The output audio extension.
         """
@@ -85,8 +76,7 @@ class SpeechToText(_AudioWorker):
 
     @abstractmethod
     async def _transcribe(self, audio: Audio) -> Transcription:
-        """
-        Transcribe the given audio to text.
+        """Transcribe the given audio to text.
 
         :param audio: The audio data to transcribe.
         :return: The Transcription Object with transcribed text.
@@ -94,8 +84,7 @@ class SpeechToText(_AudioWorker):
         pass
 
     async def transcribe(self, audio: Audio) -> Transcription:
-        """
-        Transcribe the given audio to text.
+        """Transcribe the given audio to text.
 
         :param audio: The audio data to transcribe.
         :return: The Transcription Object with transcribed text.
@@ -105,8 +94,7 @@ class SpeechToText(_AudioWorker):
 
     @property
     def output_subtitle_extension(self) -> SubtitleExtension:
-        """
-        Get the output audio extension after transcription.
+        """Get the output audio extension after transcription.
 
         :return: The output audio extension.
         """
