@@ -49,6 +49,7 @@ ignore = [
     "D100", "D101", "D102", "D103", "D104", "D105",  # Missing docstring
     "S101",  # Use of assert
     "I001",  # Import order - disabled due to gevent monkey patching requirements
+    "B008",  # Framework-specific exception caught
 ]
 
 [tool.ruff.lint.per-file-ignores]

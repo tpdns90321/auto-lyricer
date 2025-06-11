@@ -1,6 +1,6 @@
 from ..shared.supported import Language, SubtitleExtension
 from ..database import AIOSqlite
-from .exception import NotFoundThingException, NotFoundThing
+from .exception import NotFoundThingError, NotFoundThing
 from .repository import SubtitleRepository
 from .dto import Subtitle, CreateSubtitle
 
@@ -78,7 +78,7 @@ async def test_create_subtitle_with_invalid_video_id(repository):
         video_instance_id=9999,  # Non-existent video ID
     )
 
-    with pytest.raises(NotFoundThingException) as exc_info:
+    with pytest.raises(NotFoundThingError) as exc_info:
         await repository.create_subtitle(dto)
 
     assert exc_info.value.thing == NotFoundThing.VideoInstance

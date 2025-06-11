@@ -1,6 +1,7 @@
 from .container import TranscriptionContainer
 from .service import TranscriptionService
-from .dto import CreateTranscription, Transcription, PaginatedResponse
+from ..shared.pagination import PaginatedResponse
+from .dto import CreateTranscription, Transcription
 
 from fastapi.routing import APIRouter
 from fastapi import Depends, status, Query

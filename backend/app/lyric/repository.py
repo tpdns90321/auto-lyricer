@@ -1,8 +1,9 @@
-from ..database.AsyncSQLAlchemy import AsyncSQLAlchemy
-from ..shared.exception import UnknownException
+from ..database.async_sqlalchemy import AsyncSQLAlchemy
+from ..shared.exception import UnknownError
 from .model import Lyric as LyricModel
-from .dto import Lyric as LyricDTO, AddLyric, PaginatedResponse
-from .exception import NotFoundThing, NotFoundThingException
+from .dto import Lyric as LyricDTO, AddLyric
+from ..shared.pagination import PaginatedResponse
+from .exception import NotFoundThing, NotFoundThingError
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import Select
@@ -11,6 +12,11 @@ from sqlalchemy.sql.functions import count
 
 class LyricRepository:
     def __init__(self, database: AsyncSQLAlchemy):
+        """Initialize LyricRepository with database connection.
+
+        Args:
+            database: AsyncSQLAlchemy database instance.
+        """
         self._session_factory = database.session
 
     async def add_lyric(self, dto: AddLyric) -> LyricDTO:
@@ -24,13 +30,13 @@ class LyricRepository:
             try:
                 await session.commit()
             except IntegrityError as e:
-                errorMessage = str(e.orig)
-                # Have only foriegn key for video instance id, so we can check if it is not found
-                if "FOREIGN KEY constraint failed" in errorMessage:
-                    raise NotFoundThingException(NotFoundThing.VideoInstance)
-                raise UnknownException(e)
+                error_message = str(e.orig)
+                # Have only foreign key for video instance id, check if not found
+                if "FOREIGN KEY constraint failed" in error_message:
+                    raise NotFoundThingError(NotFoundThing.VideoInstance) from e
+                raise UnknownError(e) from e
             except Exception as e:
-                raise UnknownException(e)
+                raise UnknownError(e) from e
             return LyricDTO(**model.to_dict())
 
     async def get_lyric_by_instance_id(self, instance_id: int) -> LyricDTO | None:

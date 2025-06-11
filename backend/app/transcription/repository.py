@@ -1,12 +1,12 @@
-from ..database.AsyncSQLAlchemy import AsyncSQLAlchemy
-from ..shared.exception import UnknownException
+from ..database.async_sqlalchemy import AsyncSQLAlchemy
+from ..shared.exception import UnknownError
+from ..shared.pagination import PaginatedResponse
 from .model import Transcription as TranscriptionModel
 from .dto import (
     Transcription as TranscriptionDTO,
     CreateTranscription,
-    PaginatedResponse,
 )
-from .exception import NotFoundThing, NotFoundThingException
+from .exception import NotFoundThing, NotFoundThingError
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import Select
@@ -15,6 +15,11 @@ from sqlalchemy.sql.functions import count
 
 class TranscriptionRepository:
     def __init__(self, database: AsyncSQLAlchemy):
+        """Initialize TranscriptionRepository with database connection.
+
+        Args:
+            database: AsyncSQLAlchemy database instance.
+        """
         self._session_factory = database.session
 
     async def create_transcription(self, dto: CreateTranscription) -> TranscriptionDTO:
@@ -32,10 +37,10 @@ class TranscriptionRepository:
                 error_message = str(e.orig)
                 # Check if it's a foreign key constraint failure
                 if "FOREIGN KEY constraint failed" in error_message:
-                    raise NotFoundThingException(NotFoundThing.VideoInstance)
-                raise UnknownException(e)
+                    raise NotFoundThingError(NotFoundThing.VideoInstance) from e
+                raise UnknownError(e) from e
             except Exception as e:
-                raise UnknownException(e)
+                raise UnknownError(e) from e
             return TranscriptionDTO(**model.to_dict())
 
     async def get_transcription_by_instance_id(

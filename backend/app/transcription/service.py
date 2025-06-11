@@ -1,9 +1,15 @@
-from .dto import CreateTranscription, Transcription, PaginatedResponse
+from .dto import CreateTranscription, Transcription
 from .repository import TranscriptionRepository
+from ..shared.pagination import PaginatedResponse
 
 
 class TranscriptionService:
     def __init__(self, repository: TranscriptionRepository):
+        """Initialize TranscriptionService with repository dependency.
+
+        Args:
+            repository: TranscriptionRepository instance for data access.
+        """
         self._repository = repository
 
     async def create_transcription(self, dto: CreateTranscription) -> Transcription:

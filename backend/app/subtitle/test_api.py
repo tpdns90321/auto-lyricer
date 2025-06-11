@@ -87,7 +87,8 @@ async def test_create_subtitle_with_invalid_video_id(client):
 
     assert response.status_code == 404
     assert "error" in response.json()
-    # Rather than checking the exact message, just check that it contains an error message
+    # Rather than checking the exact message, just check that it contains an error
+    # message
     assert response.json()["error"]
 
 

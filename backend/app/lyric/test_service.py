@@ -5,7 +5,7 @@ from ..video.repository import VideoRepository
 from .repository import LyricRepository
 from .service import LyricService
 from .dto import AddLyric, Lyric
-from .exception import NotFoundThing, NotFoundThingException
+from .exception import NotFoundThing, NotFoundThingError
 
 import pytest_asyncio
 import pytest
@@ -80,9 +80,9 @@ async def test_lyric_service_add_lyric_with_invalid_video(
         content="Hello, Bad World!",
         video_instance_id=9999,
     )
-    with pytest.raises(NotFoundThingException) as notFoundException:
+    with pytest.raises(NotFoundThingError) as not_found_exception:
         await lyric_service.add_lyric(dto)
-    assert notFoundException.value.thing == NotFoundThing.VideoInstance
+    assert not_found_exception.value.thing == NotFoundThing.VideoInstance
 
 
 @pytest.mark.asyncio

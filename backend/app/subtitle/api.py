@@ -1,6 +1,7 @@
 from .container import SubtitleContainer
 from .service import SubtitleService
-from .dto import CreateSubtitle, Subtitle, PaginatedResponse
+from ..shared.pagination import PaginatedResponse
+from .dto import CreateSubtitle, Subtitle
 
 from fastapi.routing import APIRouter
 from fastapi import Depends, status, Query

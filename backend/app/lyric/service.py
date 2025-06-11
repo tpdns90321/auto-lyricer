@@ -1,9 +1,15 @@
-from .dto import AddLyric, Lyric, PaginatedResponse
+from .dto import AddLyric, Lyric
 from .repository import LyricRepository
+from ..shared.pagination import PaginatedResponse
 
 
 class LyricService:
     def __init__(self, lyric_repository: LyricRepository):
+        """Initialize LyricService with repository.
+
+        Args:
+            lyric_repository: LyricRepository instance for data access.
+        """
         self._lyric_repository = lyric_repository
 
     async def add_lyric(self, dto: AddLyric) -> Lyric:

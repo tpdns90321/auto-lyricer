@@ -9,7 +9,7 @@ from ..video.repository import VideoRepository
 from .repository import TranscriptionRepository
 from .service import TranscriptionService
 from .dto import CreateTranscription, Transcription
-from .exception import NotFoundThing, NotFoundThingException
+from .exception import NotFoundThing, NotFoundThingError
 
 import pytest_asyncio
 import pytest
@@ -92,9 +92,9 @@ async def test_transcription_service_create_transcription_with_invalid_video(
         subtitle_extension=SubtitleExtension.SRT,
         video_instance_id=9999,
     )
-    with pytest.raises(NotFoundThingException) as notFoundException:
+    with pytest.raises(NotFoundThingError) as not_found_exception:
         await transcription_service.create_transcription(dto)
-    assert notFoundException.value.thing == NotFoundThing.VideoInstance
+    assert not_found_exception.value.thing == NotFoundThing.VideoInstance
 
 
 @pytest.mark.asyncio
@@ -131,7 +131,7 @@ async def test_transcription_service_get_paginated_transcriptions_by_video_insta
 
 
 @pytest.mark.asyncio
-async def test_transcription_service_get_paginated_transcriptions_by_video_instance_id_not_found(
+async def test_transcription_service_get_paginated_transcriptions_by_video_id_not_found(
     transcription_service: TranscriptionService,
 ):
     result = await transcription_service.get_paginated_transcriptions(

@@ -1,5 +1,4 @@
 from ..shared.supported import Language, SubtitleExtension
-from ..shared.pagination import *
 from dataclasses import dataclass, field
 
 

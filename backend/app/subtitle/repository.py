@@ -1,12 +1,12 @@
-from ..database.AsyncSQLAlchemy import AsyncSQLAlchemy
-from ..shared.exception import UnknownException
+from ..database.async_sqlalchemy import AsyncSQLAlchemy
+from ..shared.exception import UnknownError
+from ..shared.pagination import PaginatedResponse
 from .model import Subtitle as SubtitleModel
 from .dto import (
     Subtitle as SubtitleDTO,
     CreateSubtitle,
-    PaginatedResponse,
 )
-from .exception import NotFoundThing, NotFoundThingException
+from .exception import NotFoundThing, NotFoundThingError
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import Select
@@ -15,6 +15,11 @@ from sqlalchemy.sql.functions import count
 
 class SubtitleRepository:
     def __init__(self, database: AsyncSQLAlchemy):
+        """Initialize SubtitleRepository with database connection.
+
+        Args:
+            database: AsyncSQLAlchemy database instance.
+        """
         self._session_factory = database.session
 
     async def create_subtitle(self, dto: CreateSubtitle) -> SubtitleDTO:
@@ -32,10 +37,10 @@ class SubtitleRepository:
                 error_message = str(e.orig)
                 # Check if it's a foreign key constraint failure
                 if "FOREIGN KEY constraint failed" in error_message:
-                    raise NotFoundThingException(NotFoundThing.VideoInstance)
-                raise UnknownException(e)
+                    raise NotFoundThingError(NotFoundThing.VideoInstance) from e
+                raise UnknownError(e) from e
             except Exception as e:
-                raise UnknownException(e)
+                raise UnknownError(e) from e
             return SubtitleDTO(**model.to_dict())
 
     async def get_subtitle_by_instance_id(self, instance_id: int) -> SubtitleDTO | None:

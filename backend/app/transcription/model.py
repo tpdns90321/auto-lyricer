@@ -31,4 +31,8 @@ class Transcription(AIOSqliteBase):
     )
 
     def __repr__(self):
-        return f"<Transcription instance_id={self.instance_id} language={self.language} subtitle_extension={self.subtitle_extension.value} video_instance_id={self.video_instance_id}>"
+        return (
+            f"<Transcription instance_id={self.instance_id} language={self.language} "
+            f"subtitle_extension={self.subtitle_extension.value} "
+            f"video_instance_id={self.video_instance_id}>"
+        )

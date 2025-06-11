@@ -1,15 +1,16 @@
 from .model import Video as VideoModel
-from .dto import Video as VideoDTO, PaginatedResponse
+from .dto import Video as VideoDTO
 from .exception import (
-    NotFoundException,
+    NotFoundError,
     NotFoundThings,
 )
 from ..shared.supported import Platform as SupportedPlatform
+from ..shared.pagination import PaginatedResponse
 from ..shared.exception import (
-    UnknownException,
-    UnsupportedPlatformException,
+    UnknownError,
+    UnsupportedPlatformError,
 )
-from ..database import AsyncSQLAlchemy
+from ..database.async_sqlalchemy import AsyncSQLAlchemy
 from ..video_retrieval import VideoRetrieval
 
 from yt_dlp import DownloadError
@@ -19,6 +20,12 @@ from sqlalchemy.sql.functions import count
 
 class VideoRepository:
     def __init__(self, database: AsyncSQLAlchemy, retrieval: VideoRetrieval):
+        """Initialize VideoRepository with database and video retrieval service.
+
+        Args:
+            database: AsyncSQLAlchemy database instance.
+            retrieval: VideoRetrieval service for fetching video information.
+        """
         self._session_factory = database.session
         self._retrieval = retrieval
 
@@ -31,12 +38,12 @@ class VideoRepository:
                 url = f"https://www.youtube.com/watch?v={video_id}"
             else:
                 # Add support for other platforms here in the future
-                raise UnsupportedPlatformException(platform.value)
+                raise UnsupportedPlatformError(platform.value)
 
             # Retrieve video information from external source
             video = await self._retrieval.retrieval_video_info(url)
             if not video:
-                raise NotFoundException(NotFoundThings.video)
+                raise NotFoundError(NotFoundThings.video)
 
             # Save video to database
             async with self._session_factory() as session:
@@ -52,12 +59,12 @@ class VideoRepository:
                 session.add(model)
                 await session.commit()
                 return _model_to_dto(model)
-        except DownloadError:
-            raise NotFoundException(NotFoundThings.video)
-        except UnsupportedPlatformException as e:
-            raise e
+        except DownloadError as e:
+            raise NotFoundError(NotFoundThings.video) from e
+        except UnsupportedPlatformError:
+            raise
         except Exception as e:
-            raise UnknownException(e)
+            raise UnknownError(e) from e
 
     async def get_video_by_instance_id(self, instance_id: int) -> VideoDTO | None:
         try:
@@ -68,7 +75,7 @@ class VideoRepository:
                 model = result.scalar_one_or_none()
                 return _model_to_dto(model) if model else None
         except Exception as e:
-            raise UnknownException(e)
+            raise UnknownError(e) from e
 
     async def get_video_by_video_id(
         self, platform: SupportedPlatform, video_id: str
@@ -86,7 +93,7 @@ class VideoRepository:
                 model = result.scalar_one_or_none()
                 return _model_to_dto(model) if model else None
         except Exception as e:
-            raise UnknownException(e)
+            raise UnknownError(e) from e
 
     async def get_paginated_videos(
         self, page: int = 1, size: int = 10
@@ -120,7 +127,7 @@ class VideoRepository:
 
                 return PaginatedResponse(items=items, total=total, page=page, size=size)
         except Exception as e:
-            raise UnknownException(e)
+            raise UnknownError(e) from e
 
 
 def _model_to_dto(model: VideoModel) -> VideoDTO:

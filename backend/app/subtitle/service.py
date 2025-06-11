@@ -1,9 +1,15 @@
-from .dto import CreateSubtitle, Subtitle, PaginatedResponse
+from .dto import CreateSubtitle, Subtitle
 from .repository import SubtitleRepository
+from ..shared.pagination import PaginatedResponse
 
 
 class SubtitleService:
     def __init__(self, repository: SubtitleRepository):
+        """Initialize SubtitleService with repository dependency.
+
+        Args:
+            repository: SubtitleRepository instance for data access.
+        """
         self._repository = repository
 
     async def create_subtitle(self, dto: CreateSubtitle) -> Subtitle:

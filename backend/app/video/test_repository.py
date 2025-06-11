@@ -4,9 +4,9 @@ from ..shared.supported import Platform as SupportedPlatform
 from ..database import AIOSqlite
 from ..video_retrieval import VideoInfo
 from ..video.exception import (
-    NotFoundException,
+    NotFoundError,
 )
-from ..shared.exception import UnsupportedPlatformException
+from ..shared.exception import UnsupportedPlatformError
 from ..video_retrieval import VideoRetrieval
 
 import pytest
@@ -78,7 +78,7 @@ async def test_retrieve_and_save_video_normal(normal_video: Video):
 
 @pytest.mark.asyncio
 async def test_retrieve_and_save_video_not_found(failed_repository: VideoRepository):
-    with pytest.raises(NotFoundException):
+    with pytest.raises(NotFoundError):
         await failed_repository.retrieve_and_save_video(
             platform=SupportedPlatform.youtube, video_id="aaaaaaaaaaa"
         )
@@ -86,7 +86,7 @@ async def test_retrieve_and_save_video_not_found(failed_repository: VideoReposit
 
 @pytest.mark.asyncio
 async def test_retrieve_and_save_video_invalid_id(failed_repository: VideoRepository):
-    with pytest.raises(NotFoundException):
+    with pytest.raises(NotFoundError):
         await failed_repository.retrieve_and_save_video(
             platform=SupportedPlatform.youtube, video_id=""
         )
@@ -96,9 +96,10 @@ async def test_retrieve_and_save_video_invalid_id(failed_repository: VideoReposi
 async def test_retrieve_and_save_video_unsupported_platform(
     normal_repository: VideoRepository,
 ):
-    # For now, this test would need to be restructured since the platform check is in service
+    # For now, this test would need to be restructured since the platform check
+    # is in service
     # We can test that unsupported platforms raise an error
-    with pytest.raises(UnsupportedPlatformException):
+    with pytest.raises(UnsupportedPlatformError):
         # Create a fake unsupported platform
         from enum import Enum
 

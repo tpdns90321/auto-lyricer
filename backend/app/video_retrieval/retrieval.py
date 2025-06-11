@@ -9,6 +9,11 @@ import asyncio_gevent
 
 class VideoRetrieval:
     def __init__(self, opts: dict):
+        """Initialize VideoRetrieval with yt-dlp options.
+
+        Args:
+            opts: Dictionary of yt-dlp options for video extraction.
+        """
         self._opts = opts
 
     async def retrieval_video_info(self, url: str) -> VideoInfo:

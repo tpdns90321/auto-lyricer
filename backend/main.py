@@ -1,5 +1,4 @@
-from app.api import *
-
+from app.api import api  # noqa: F401 # type: ignore
 import uvicorn
 
 

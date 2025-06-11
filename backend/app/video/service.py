@@ -1,13 +1,19 @@
 from .repository import VideoRepository
-from .dto import Video, RetrievalVideo, PaginatedResponse
-from .exception import NotFoundException, NotFoundThings
+from .dto import Video, RetrievalVideo
+from .exception import NotFoundError, NotFoundThings
 from ..shared.supported import Platform as SupportedPlatform
-from ..shared.exception import UnsupportedPlatformException
+from ..shared.pagination import PaginatedResponse
+from ..shared.exception import UnsupportedPlatformError
 from urllib.parse import urlparse
 
 
 class VideoService:
     def __init__(self, repository: VideoRepository):
+        """Initialize VideoService with repository.
+
+        Args:
+            repository: VideoRepository instance for data access.
+        """
         self._repository = repository
 
     async def retrieval_video(self, dto: RetrievalVideo) -> Video:
@@ -42,11 +48,11 @@ class VideoService:
                 video_id = queries.get("v")
 
             if not video_id:
-                raise NotFoundException(NotFoundThings.video_id)
+                raise NotFoundError(NotFoundThings.video_id)
 
             return platform, video_id
         else:
-            raise UnsupportedPlatformException(parsed_url.netloc)
+            raise UnsupportedPlatformError(parsed_url.netloc)
 
     async def get_video_by_instance_id(self, instance_id: int) -> Video | None:
         return await self._repository.get_video_by_instance_id(instance_id)

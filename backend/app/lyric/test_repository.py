@@ -5,7 +5,7 @@ from ..video_retrieval.type import VideoInfo
 from ..video.repository import VideoRepository
 from .repository import LyricRepository
 from .dto import AddLyric, Lyric
-from .exception import NotFoundThing, NotFoundThingException
+from .exception import NotFoundThing, NotFoundThingError
 
 import pytest
 import pytest_asyncio
@@ -67,7 +67,7 @@ async def test_lyric_repository_add_lyric(normal_lyric: Lyric):
 async def test_lyric_repository_add_lyric_with_invalid_video(
     lyric_repository: LyricRepository,
 ):
-    with pytest.raises(NotFoundThingException) as notFoundException:
+    with pytest.raises(NotFoundThingError) as not_found_exception:
         await lyric_repository.add_lyric(
             AddLyric(
                 language=Language.english,
@@ -76,7 +76,7 @@ async def test_lyric_repository_add_lyric_with_invalid_video(
             )
         )
 
-    assert notFoundException.value.thing == NotFoundThing.VideoInstance
+    assert not_found_exception.value.thing == NotFoundThing.VideoInstance
 
 
 @pytest.mark.asyncio

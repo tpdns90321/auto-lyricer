@@ -47,4 +47,10 @@ class Video(AIOSqliteBase):
     __table_args__ = (UniqueConstraint("platform", "video_id"),)
 
     def __repr__(self):
-        return f"<Video instance_id={self.instance_id} platform={self.platform} video_id={self.video_id} channel_id={self.channel_id} channel_name={self.channel_name} title={self.title} duration_seconds={self.duration_seconds} thumbnail_url={self.thumbnail_url}>"
+        return (
+            f"<Video instance_id={self.instance_id} platform={self.platform} "
+            f"video_id={self.video_id} channel_id={self.channel_id} "
+            f"channel_name={self.channel_name} title={self.title} "
+            f"duration_seconds={self.duration_seconds} "
+            f"thumbnail_url={self.thumbnail_url}>"
+        )

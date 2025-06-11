@@ -30,4 +30,7 @@ class Lyric(AIOSqliteBase):
     )
 
     def __repr__(self):
-        return f"<Lyric instance_id={self.instance_id} content={self.content} language={self.language} video_instance_id={self.video_instance_id}>"
+        return (
+            f"<Lyric instance_id={self.instance_id} content={self.content} "
+            f"language={self.language} video_instance_id={self.video_instance_id}>"
+        )

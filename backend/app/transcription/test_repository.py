@@ -9,7 +9,7 @@ from ..video_retrieval.type import VideoInfo
 from ..video.repository import VideoRepository
 from .repository import TranscriptionRepository
 from .dto import CreateTranscription, Transcription
-from .exception import NotFoundThing, NotFoundThingException
+from .exception import NotFoundThing, NotFoundThingError
 
 import pytest
 import pytest_asyncio
@@ -76,7 +76,7 @@ async def test_transcription_repository_create_transcription(
 async def test_transcription_repository_create_transcription_with_invalid_video(
     transcription_repository: TranscriptionRepository,
 ):
-    with pytest.raises(NotFoundThingException) as notFoundException:
+    with pytest.raises(NotFoundThingError) as not_found_exception:
         await transcription_repository.create_transcription(
             CreateTranscription(
                 language=Language.english,
@@ -86,7 +86,7 @@ async def test_transcription_repository_create_transcription_with_invalid_video(
             )
         )
 
-    assert notFoundException.value.thing == NotFoundThing.VideoInstance
+    assert not_found_exception.value.thing == NotFoundThing.VideoInstance
 
 
 @pytest.mark.asyncio
@@ -114,7 +114,7 @@ async def test_transcription_repository_get_transcription_by_instance_id_not_fou
 
 
 @pytest.mark.asyncio
-async def test_transcription_repository_get_paginated_transcriptions_by_video_instance_id(
+async def test_transcription_repository_get_paginated_transcriptions_by_video_id(
     normal_transcription: Transcription,
     transcription_repository: TranscriptionRepository,
 ):
@@ -136,7 +136,7 @@ async def test_transcription_repository_get_paginated_transcriptions_by_video_in
 
 
 @pytest.mark.asyncio
-async def test_transcription_repository_get_paginated_transcriptions_by_video_instance_id_not_found(
+async def test_transcription_repository_get_paginated_by_video_id_not_found(
     transcription_repository: TranscriptionRepository,
 ):
     result = await transcription_repository.get_paginated_transcriptions(

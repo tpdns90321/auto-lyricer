@@ -3,7 +3,7 @@ from ..shared.supported import Language, SubtitleExtension
 from .service import SubtitleService
 from .repository import SubtitleRepository
 from .dto import Subtitle, CreateSubtitle
-from .exception import NotFoundThingException, NotFoundThing
+from .exception import NotFoundThingError, NotFoundThing
 
 import pytest
 import pytest_asyncio
@@ -82,7 +82,7 @@ async def test_create_subtitle_with_invalid_video_id(subtitle_service):
         video_instance_id=9999,  # Non-existent video ID
     )
 
-    with pytest.raises(NotFoundThingException) as exc_info:
+    with pytest.raises(NotFoundThingError) as exc_info:
         await subtitle_service.create_subtitle(dto)
 
     assert exc_info.value.thing == NotFoundThing.VideoInstance

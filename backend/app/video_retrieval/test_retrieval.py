@@ -56,7 +56,7 @@ ALL NCS MUSIC FULL PLAYLIST: http://bit.ly/ALLNCSmusic
 
 To request a commercial license visit: http://ncs.io/Commercial
 
-#UnknownBrain #Superhero #nocopyrightsounds #copyrightfree #music #song #edm #dancemusic #royaltyfreemusic #copyrightfreemusic #nocopyrightmusic #ncs #ncsmusic #electronicmusic #trap"""
+#UnknownBrain #Superhero #nocopyrightsounds #copyrightfree #music #song #edm #dancemusic #royaltyfreemusic #copyrightfreemusic #nocopyrightmusic #ncs #ncsmusic #electronicmusic #trap"""  # noqa: E501,W291
     )
 
     assert video_info.domain == "youtube.com"
@@ -70,6 +70,12 @@ async def test_retrieval_audio_of_video(retrieval: VideoRetrieval):
         "https://www.youtube.com/watch?v=LHvYrn3FAgI"
     )
     assert audio is not None
-    with open("app/video_retrieval/test_retrieval_audio_of_LHvYrn3FAgI.aac", "rb") as f:
-        audio_content = f.read()
-        assert audio == audio_content
+
+    def assert_between_audio_and_file():
+        with open(
+            "app/video_retrieval/test_retrieval_audio_of_LHvYrn3FAgI.aac", "rb"
+        ) as f:
+            audio_content = f.read()
+            assert audio == audio_content
+
+    assert_between_audio_and_file()

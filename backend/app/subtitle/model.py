@@ -31,4 +31,8 @@ class Subtitle(AIOSqliteBase):
     )
 
     def __repr__(self):
-        return f"<Subtitle instance_id={self.instance_id} language={self.language} file_format={self.file_format.value} video_instance_id={self.video_instance_id}>"
+        return (
+            f"<Subtitle instance_id={self.instance_id} language={self.language} "
+            f"file_format={self.file_format.value} "
+            f"video_instance_id={self.video_instance_id}>"
+        )

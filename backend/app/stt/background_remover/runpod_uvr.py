@@ -26,6 +26,14 @@ class RunpodUVR(BackgroundRemover):
     _output_audio_extension = AudioExtension.OGG
 
     def __init__(self, config: dict):
+        """Initialize RunpodUVR with configuration.
+
+        Args:
+            config: Dictionary containing RUNPOD_API_KEY and RUNPOD_UVR_ENDPOINT.
+
+        Raises:
+            ValueError: If required configuration keys are missing or empty.
+        """
         self._config = RunpodUVRConfig(**config)
 
         if not self._config.RUNPOD_API_KEY:

@@ -1,6 +1,7 @@
 from .container import VideoContainer
 from .service import VideoService
-from .dto import RetrievalVideo, SupportedPlatform, Video, PaginatedResponse
+from ..shared.pagination import PaginatedResponse
+from .dto import RetrievalVideo, SupportedPlatform, Video
 
 from fastapi.routing import APIRouter
 from fastapi import Depends, status, Query

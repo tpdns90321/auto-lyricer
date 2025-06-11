@@ -27,10 +27,10 @@ normal_video_retrieval.retrieval_video_info.return_value = VideoInfo(
 
 database = AIOSqlite(relative_path=":memory:")
 asyncio.run(database.create_database())
-videoContainer = VideoContainer(database=database, retrieval=normal_video_retrieval)
-videoContainer.init_resources()
-lyricContainer = LyricContainer(database=database)
-lyricContainer.init_resources()
+video_container = VideoContainer(database=database, retrieval=normal_video_retrieval)
+video_container.init_resources()
+lyric_container = LyricContainer(database=database)
+lyric_container.init_resources()
 
 app = FastAPI()
 app.include_router(router)
@@ -39,7 +39,7 @@ app.include_router(router)
 @pytest_asyncio.fixture
 async def client():
     await database.reset_database()
-    await videoContainer.repository().retrieve_and_save_video(
+    await video_container.repository().retrieve_and_save_video(
         platform=SupportedPlatform.youtube, video_id="testestest"
     )
     return AsyncClient(transport=ASGITransport(app=app), base_url="http://test")

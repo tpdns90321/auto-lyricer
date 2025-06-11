@@ -1,6 +1,7 @@
 from .container import LyricContainer
 from .service import LyricService
-from .dto import AddLyric, Lyric, PaginatedResponse
+from ..shared.pagination import PaginatedResponse
+from .dto import AddLyric, Lyric
 
 from fastapi.routing import APIRouter
 from fastapi import Depends, status, Query
