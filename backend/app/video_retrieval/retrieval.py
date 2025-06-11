@@ -20,6 +20,7 @@ class VideoRetrieval:
 
                 return VideoInfo(
                     video_id=info.get("display_id", ""),
+                    description=info.get("description", ""),
                     domain=info.get("webpage_url_domain", ""),
                     duration_seconds=info.get("duration", 0),
                     channel_name=info.get("uploader", ""),

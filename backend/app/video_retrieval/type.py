@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
@@ -10,3 +10,4 @@ class VideoInfo:
     channel_id: str
     title: str
     thumbnail_url: str
+    description: str = field(default="")
