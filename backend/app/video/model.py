@@ -24,6 +24,7 @@ class Video(AIOSqliteBase):
     title: Mapped[str]
     duration_seconds: Mapped[int]
     thumbnail_url: Mapped[str]
+    description: Mapped[str] = mapped_column(default="")
 
     # Relationships
     lyrics: Mapped[list["Lyric"]] = relationship(

@@ -53,6 +53,7 @@ class VideoRepository:
                     channel_id=video.channel_id,
                     channel_name=video.channel_name,
                     title=video.title,
+                    description=video.description,
                     duration_seconds=video.duration_seconds,
                     thumbnail_url=video.thumbnail_url,
                 )

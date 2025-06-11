@@ -21,6 +21,7 @@ def normal_video_retrieval() -> VideoRetrieval:
     retrieval.retrieval_video_info = AsyncMock(
         return_value=VideoInfo(
             video_id="testestest",
+            description="Hello world",
             domain="youtube.com",
             duration_seconds=100,
             channel_name="channel",
@@ -72,6 +73,7 @@ async def test_retrieve_and_save_video_normal(normal_video: Video):
     assert normal_video.platform == SupportedPlatform.youtube
     assert normal_video.channel_id == "channel_id"
     assert normal_video.channel_name == "channel"
+    assert normal_video.description == "Hello world"
     assert normal_video.duration_seconds == 100
     assert normal_video.thumbnail_url == "thumbnail_url"
 

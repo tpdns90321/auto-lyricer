@@ -54,6 +54,13 @@ class Video:
             "example": "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
         }
     )
+    description: str = field(
+        default="",
+        metadata={
+            "description": "Video description.",
+            "example": "Rick Astley's official music video.",
+        },
+    )
 
 
 @dataclass(frozen=True)
