@@ -1,6 +1,6 @@
 from .service import VideoService
 from .repository import VideoRepository
-from .dto import Video, RetrievalVideo
+from .dto import Video
 from ..shared.supported import Platform as SupportedPlatform
 from ..database import AIOSqlite
 from ..video_retrieval import VideoRetrieval, VideoInfo
@@ -48,7 +48,7 @@ async def failed_video_service(failed_video_retrieval: VideoRetrieval) -> VideoS
 @pytest_asyncio.fixture
 async def normal_video(normal_video_service: VideoService) -> Video:
     return await normal_video_service.retrieval_video(
-        RetrievalVideo("https://www.youtube.com/watch?v=video_id")
+        "https://www.youtube.com/watch?v=video_id"
     )
 
 
@@ -117,7 +117,7 @@ async def test_get_paginated_videos(normal_video_service: VideoService):
         )
 
         await normal_video_service.retrieval_video(
-            RetrievalVideo(f"https://www.youtube.com/watch?v=test{i}")
+            f"https://www.youtube.com/watch?v=test{i}"
         )
 
     # Test first page with default values (page=1, size=10)

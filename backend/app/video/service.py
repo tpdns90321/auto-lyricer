@@ -1,5 +1,5 @@
 from .repository import VideoRepository
-from .dto import Video, RetrievalVideo
+from .dto import Video
 from .exception import NotFoundError, NotFoundThings
 from ..shared.supported import Platform as SupportedPlatform
 from ..shared.pagination import PaginatedResponse
@@ -16,8 +16,8 @@ class VideoService:
         """
         self._repository = repository
 
-    async def retrieval_video(self, dto: RetrievalVideo) -> Video:
-        platform, video_id = self._parse_video_url(dto.video_url)
+    async def retrieval_video(self, video_url: str) -> Video:
+        platform, video_id = self._parse_video_url(video_url)
 
         # Check if video already exists in database
         existing_video = await self._repository.get_video_by_video_id(

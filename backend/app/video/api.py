@@ -17,7 +17,7 @@ async def retrieval(
     dto: RetrievalVideo,
     service: VideoService = Depends(Provide[VideoContainer.service]),
 ) -> Video:
-    return await service.retrieval_video(dto)
+    return await service.retrieval_video(dto.video_url)
 
 
 @router.get(

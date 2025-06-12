@@ -5,7 +5,6 @@ from ..video_retrieval.type import VideoInfo
 from ..video.container import VideoContainer
 from .repository import LyricRepository
 from .dto import AddLyric, Lyric
-from ..video.dto import RetrievalVideo
 from .exception import NotFoundThing, NotFoundThingError
 
 import pytest
@@ -46,9 +45,7 @@ async def lyric_repository(
     )
     video_container.init_resources()
     video_service = video_container.service()
-    await video_service.retrieval_video(
-        RetrievalVideo(video_url="https://www.youtube.com/watch?v=testestest")
-    )
+    await video_service.retrieval_video("https://www.youtube.com/watch?v=testestest")
     return LyricRepository(database=database)
 
 
