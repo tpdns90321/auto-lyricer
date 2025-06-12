@@ -1,5 +1,5 @@
 from ..database import AIOSqlite
-from ..shared.supported import Language, Platform as SupportedPlatform
+from ..shared.supported import Language
 from ..video_retrieval import VideoRetrieval
 from ..video_retrieval.type import VideoInfo
 from ..video.container import VideoContainer
@@ -39,8 +39,8 @@ app.include_router(router)
 @pytest_asyncio.fixture
 async def client():
     await database.reset_database()
-    await video_container.repository().retrieve_and_save_video(
-        platform=SupportedPlatform.youtube, video_id="testestest"
+    await video_container.service().retrieval_video(
+        video_url="https://www.youtube.com/watch?v=testestest"
     )
     return AsyncClient(transport=ASGITransport(app=app), base_url="http://test")
 

@@ -1,3 +1,4 @@
+from app.video_retrieval.type import VideoInfo
 from .model import Video as VideoModel
 from .dto import Video as VideoDTO
 from .exception import (
@@ -8,10 +9,8 @@ from ..shared.supported import Platform as SupportedPlatform
 from ..shared.pagination import PaginatedResponse
 from ..shared.exception import (
     UnknownError,
-    UnsupportedPlatformError,
 )
 from ..database.async_sqlalchemy import AsyncSQLAlchemy
-from ..video_retrieval import VideoRetrieval
 
 from yt_dlp import DownloadError
 from sqlalchemy.sql import Select, and_
@@ -19,7 +18,7 @@ from sqlalchemy.sql.functions import count
 
 
 class VideoRepository:
-    def __init__(self, database: AsyncSQLAlchemy, retrieval: VideoRetrieval):
+    def __init__(self, database: AsyncSQLAlchemy):
         """Initialize VideoRepository with database and video retrieval service.
 
         Args:
@@ -27,29 +26,16 @@ class VideoRepository:
             retrieval: VideoRetrieval service for fetching video information.
         """
         self._session_factory = database.session
-        self._retrieval = retrieval
 
     async def retrieve_and_save_video(
-        self, platform: SupportedPlatform, video_id: str
+        self, platform: SupportedPlatform, video_id: str, video: VideoInfo
     ) -> VideoDTO:
         try:
-            # Construct URL based on platform
-            if platform == SupportedPlatform.youtube:
-                url = f"https://www.youtube.com/watch?v={video_id}"
-            else:
-                # Add support for other platforms here in the future
-                raise UnsupportedPlatformError(platform.value)
-
-            # Retrieve video information from external source
-            video = await self._retrieval.retrieval_video_info(url)
-            if not video:
-                raise NotFoundError(NotFoundThings.video)
-
             # Save video to database
             async with self._session_factory() as session:
                 model = VideoModel(
                     platform=platform,
-                    video_id=video.video_id,
+                    video_id=video_id,
                     channel_id=video.channel_id,
                     channel_name=video.channel_name,
                     title=video.title,
@@ -62,8 +48,6 @@ class VideoRepository:
                 return _model_to_dto(model)
         except DownloadError as e:
             raise NotFoundError(NotFoundThings.video) from e
-        except UnsupportedPlatformError:
-            raise
         except Exception as e:
             raise UnknownError(e) from e
 

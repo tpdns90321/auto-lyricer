@@ -3,43 +3,23 @@ from .dto import Video
 from ..shared.supported import Platform as SupportedPlatform
 from ..database import AIOSqlite
 from ..video_retrieval import VideoInfo
-from ..video.exception import (
-    NotFoundError,
-)
-from ..shared.exception import UnsupportedPlatformError
-from ..video_retrieval import VideoRetrieval
 
 import pytest
 import pytest_asyncio
-from unittest.mock import AsyncMock
-from yt_dlp import DownloadError
 
 
 @pytest.fixture
-def normal_video_retrieval() -> VideoRetrieval:
-    retrieval = VideoRetrieval({})
-    retrieval.retrieval_video_info = AsyncMock(
-        return_value=VideoInfo(
-            video_id="testestest",
-            description="Hello world",
-            domain="youtube.com",
-            duration_seconds=100,
-            channel_name="channel",
-            channel_id="channel_id",
-            title="",
-            thumbnail_url="thumbnail_url",
-        )
+def normal_video_info() -> VideoInfo:
+    return VideoInfo(
+        video_id="testestest",
+        description="Hello world",
+        domain="youtube.com",
+        duration_seconds=100,
+        channel_name="channel",
+        channel_id="channel_id",
+        title="",
+        thumbnail_url="thumbnail_url",
     )
-    return retrieval
-
-
-@pytest.fixture
-def failed_video_retrieval() -> VideoRetrieval:
-    retrieval = VideoRetrieval({})
-    retrieval.retrieval_video_info = AsyncMock(
-        side_effect=DownloadError("Failed to retrieve video info")
-    )
-    return retrieval
 
 
 @pytest_asyncio.fixture
@@ -50,19 +30,16 @@ async def database() -> AIOSqlite:
 
 
 @pytest_asyncio.fixture
-async def normal_repository(database, normal_video_retrieval) -> VideoRepository:
-    return VideoRepository(database=database, retrieval=normal_video_retrieval)
+async def normal_repository(database) -> VideoRepository:
+    return VideoRepository(database=database)
 
 
 @pytest_asyncio.fixture
-async def failed_repository(database, failed_video_retrieval) -> VideoRepository:
-    return VideoRepository(database=database, retrieval=failed_video_retrieval)
-
-
-@pytest_asyncio.fixture
-async def normal_video(normal_repository) -> Video:
+async def normal_video(normal_repository, normal_video_info: VideoInfo) -> Video:
     return await normal_repository.retrieve_and_save_video(
-        platform=SupportedPlatform.youtube, video_id="testestest"
+        platform=SupportedPlatform.youtube,
+        video_id="testestest",
+        video=normal_video_info,
     )
 
 
@@ -76,42 +53,6 @@ async def test_retrieve_and_save_video_normal(normal_video: Video):
     assert normal_video.description == "Hello world"
     assert normal_video.duration_seconds == 100
     assert normal_video.thumbnail_url == "thumbnail_url"
-
-
-@pytest.mark.asyncio
-async def test_retrieve_and_save_video_not_found(failed_repository: VideoRepository):
-    with pytest.raises(NotFoundError):
-        await failed_repository.retrieve_and_save_video(
-            platform=SupportedPlatform.youtube, video_id="aaaaaaaaaaa"
-        )
-
-
-@pytest.mark.asyncio
-async def test_retrieve_and_save_video_invalid_id(failed_repository: VideoRepository):
-    with pytest.raises(NotFoundError):
-        await failed_repository.retrieve_and_save_video(
-            platform=SupportedPlatform.youtube, video_id=""
-        )
-
-
-@pytest.mark.asyncio
-async def test_retrieve_and_save_video_unsupported_platform(
-    normal_repository: VideoRepository,
-):
-    # For now, this test would need to be restructured since the platform check
-    # is in service
-    # We can test that unsupported platforms raise an error
-    with pytest.raises(UnsupportedPlatformError):
-        # Create a fake unsupported platform
-        from enum import Enum
-
-        class FakePlatform(Enum):
-            unsupported = "unsupported"
-
-        await normal_repository.retrieve_and_save_video(
-            platform=FakePlatform.unsupported,  # type: ignore
-            video_id="test",
-        )
 
 
 @pytest.mark.asyncio
@@ -172,23 +113,25 @@ async def test_get_video_by_video_id_not_found(normal_repository: VideoRepositor
 
 
 @pytest.mark.asyncio
-async def test_get_paginated_videos(normal_repository: VideoRepository):
+async def test_get_paginated_videos(
+    normal_repository: VideoRepository, normal_video_info: VideoInfo
+):
     # Create multiple videos for pagination testing
     for i in range(15):  # Adding 15 videos
         # Mock a different video ID each time
-        normal_repository._retrieval.retrieval_video_info = AsyncMock(
-            return_value=VideoInfo(
-                video_id=f"test{i}",
-                domain="youtube.com",
-                duration_seconds=100,
-                channel_name="channel",
-                channel_id="channel_id",
-                title=f"Test Video {i}",
-                thumbnail_url="thumbnail_url",
-            )
+        video_info = VideoInfo(
+            video_id=f"test{i}",
+            domain="youtube.com",
+            duration_seconds=100,
+            channel_name="channel",
+            channel_id="channel_id",
+            title=f"Test Video {i}",
+            thumbnail_url="thumbnail_url",
         )
         await normal_repository.retrieve_and_save_video(
-            platform=SupportedPlatform.youtube, video_id=f"test{i}"
+            platform=SupportedPlatform.youtube,
+            video_id=f"test{i}",
+            video=video_info,
         )
 
     # Test first page with default values (page=1, size=10)

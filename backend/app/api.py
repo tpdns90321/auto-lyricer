@@ -57,11 +57,11 @@ async def log_requests(request: Request, call_next):
 
 # Error handler for unhandled exceptions
 @api.exception_handler(Exception)
-async def unicorn_exception_handler(request: Request, exc: Exception):
+async def unicorn_exception_handler(_: Request, exc: Exception):
     logging.error(f"Unhandled error: {exc}")
     return JSONResponse(
         status_code=500,
-        content={"message": "Internal server error"},
+        content={"error": "Internal server error"},
     )
 
 

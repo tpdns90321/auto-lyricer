@@ -31,8 +31,8 @@ def normal_video_retrieval() -> VideoRetrieval:
 async def normal_video_service(normal_video_retrieval: VideoRetrieval) -> VideoService:
     database = AIOSqlite(":memory:")
     await database.reset_database()
-    repository = VideoRepository(database, normal_video_retrieval)
-    service = VideoService(repository)
+    repository = VideoRepository(database)
+    service = VideoService(repository, normal_video_retrieval)
     return service
 
 
@@ -40,8 +40,8 @@ async def normal_video_service(normal_video_retrieval: VideoRetrieval) -> VideoS
 async def failed_video_service(failed_video_retrieval: VideoRetrieval) -> VideoService:
     database = AIOSqlite(":memory:")
     await database.reset_database()
-    repository = VideoRepository(database, failed_video_retrieval)
-    service = VideoService(repository)
+    repository = VideoRepository(database)
+    service = VideoService(repository, failed_video_retrieval)
     return service
 
 
@@ -102,17 +102,15 @@ async def test_get_paginated_videos(normal_video_service: VideoService):
     # Create additional videos
     for i in range(15):  # Adding 15 more videos, giving us 15
         # We need to update the mock to return different video IDs
-        normal_video_service._repository._retrieval.retrieval_video_info = (
-            mock.AsyncMock(
-                return_value=VideoInfo(
-                    video_id=f"test{i}",
-                    domain="youtube.com",
-                    duration_seconds=10,
-                    channel_name="channel_name",
-                    channel_id="channel_id",
-                    title=f"Test Video {i}",
-                    thumbnail_url="thumbnail_url",
-                )
+        normal_video_service._retrieval.retrieval_video_info = mock.AsyncMock(
+            return_value=VideoInfo(
+                video_id=f"test{i}",
+                domain="youtube.com",
+                duration_seconds=10,
+                channel_name="channel_name",
+                channel_id="channel_id",
+                title=f"Test Video {i}",
+                thumbnail_url="thumbnail_url",
             )
         )
 

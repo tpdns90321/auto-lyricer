@@ -1,6 +1,7 @@
 from .repository import VideoRepository
 from .dto import Video
 from .exception import NotFoundError, NotFoundThings
+from ..video_retrieval.retrieval import VideoRetrieval
 from ..shared.supported import Platform as SupportedPlatform
 from ..shared.pagination import PaginatedResponse
 from ..shared.exception import UnsupportedPlatformError
@@ -8,13 +9,15 @@ from urllib.parse import urlparse
 
 
 class VideoService:
-    def __init__(self, repository: VideoRepository):
+    def __init__(self, repository: VideoRepository, retrieval: VideoRetrieval):
         """Initialize VideoService with repository.
 
         Args:
             repository: VideoRepository instance for data access.
+            retrieval: VideoRetrieval instance for external video information retrieval.
         """
         self._repository = repository
+        self._retrieval = retrieval
 
     async def retrieval_video(self, video_url: str) -> Video:
         platform, video_id = self._parse_video_url(video_url)
@@ -26,8 +29,18 @@ class VideoService:
         if existing_video:
             return existing_video
 
+        # Construct URL based on platform
+        if platform != SupportedPlatform.youtube:
+            # Add support for other platforms here in the future
+            raise UnsupportedPlatformError(platform.value)
+
+        # Retrieve video information from external source
+        video = await self._retrieval.retrieval_video_info(video_url)
+        if not video:
+            raise NotFoundError(NotFoundThings.video)
+
         # Retrieve new video from external source
-        return await self._repository.retrieve_and_save_video(platform, video_id)
+        return await self._repository.retrieve_and_save_video(platform, video_id, video)
 
     def _parse_video_url(self, url: str) -> tuple[SupportedPlatform, str]:
         parsed_url = urlparse(url)

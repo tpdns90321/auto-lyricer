@@ -10,13 +10,13 @@ class VideoContainer(containers.DeclarativeContainer):
 
     repository = providers.Factory(
         VideoRepository,
-        retrieval=retrieval.provided,
         database=database.provided,
     )
 
     service = providers.Factory(
         VideoService,
         repository=repository.provided,
+        retrieval=retrieval.provided,
     )
 
     wiring_config = containers.WiringConfiguration(
