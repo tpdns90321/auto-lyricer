@@ -1,10 +1,11 @@
 from ..database import AIOSqlite
-from ..shared.supported import Language, Platform as SupportedPlatform
+from ..shared.supported import Language
 from ..video_retrieval import VideoRetrieval, VideoInfo
-from ..video.repository import VideoRepository
+from ..video.container import VideoContainer
 from .repository import LyricRepository
 from .service import LyricService
 from .dto import AddLyric, Lyric
+from ..video.dto import RetrievalVideo
 from .exception import NotFoundThing, NotFoundThingError
 
 import pytest_asyncio
@@ -40,10 +41,14 @@ async def normal_video_retrieval() -> VideoRetrieval:
 async def lyric_repository(
     database: AIOSqlite, normal_video_retrieval
 ) -> LyricRepository:
-    await VideoRepository(
-        database=database,
-        retrieval=normal_video_retrieval,
-    ).retrieve_and_save_video(platform=SupportedPlatform.youtube, video_id="testestest")
+    video_container = VideoContainer(
+        database=database, retrieval=normal_video_retrieval
+    )
+    video_container.init_resources()
+    video_service = video_container.service()
+    await video_service.retrieval_video(
+        RetrievalVideo(video_url="https://www.youtube.com/watch?v=testestest")
+    )
     return LyricRepository(database=database)
 
 

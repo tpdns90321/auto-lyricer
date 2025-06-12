@@ -2,13 +2,13 @@ from ..database import AIOSqlite
 from ..shared.supported import (
     Language,
     SubtitleExtension,
-    Platform as SupportedPlatform,
 )
 from ..video_retrieval.retrieval import VideoRetrieval
 from ..video_retrieval.type import VideoInfo
-from ..video.repository import VideoRepository
+from ..video.container import VideoContainer
 from .repository import TranscriptionRepository
 from .dto import CreateTranscription, Transcription
+from ..video.dto import RetrievalVideo
 from .exception import NotFoundThing, NotFoundThingError
 
 import pytest
@@ -44,10 +44,14 @@ async def normal_video_retrieval() -> VideoRetrieval:
 async def transcription_repository(
     database: AIOSqlite, normal_video_retrieval
 ) -> TranscriptionRepository:
-    await VideoRepository(
-        database=database,
-        retrieval=normal_video_retrieval,
-    ).retrieve_and_save_video(platform=SupportedPlatform.youtube, video_id="testestest")
+    video_container = VideoContainer(
+        database=database, retrieval=normal_video_retrieval
+    )
+    video_container.init_resources()
+    video_service = video_container.service()
+    await video_service.retrieval_video(
+        RetrievalVideo(video_url="https://www.youtube.com/watch?v=testestest")
+    )
     return TranscriptionRepository(database=database)
 
 
