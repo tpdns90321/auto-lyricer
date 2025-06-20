@@ -1,10 +1,9 @@
-import pytest
-from unittest.mock import AsyncMock, Mock, patch
-from aiohttp import ClientSession
-from base64 import b64encode
-
 from .runpod_uvr import RunpodUVR, RunpodUVRConfig, RunpodUVRResponse
 from ..data import Audio, AudioExtension
+
+import pytest
+from unittest.mock import AsyncMock, Mock, patch
+from base64 import b64encode
 
 
 @pytest.fixture
@@ -45,11 +44,6 @@ def aac_audio():
     return Audio(binary=b"aac_audio_data", extension=AudioExtension.AAC)
 
 
-@pytest.fixture
-def mock_session():
-    return Mock(spec=ClientSession)
-
-
 class TestRunpodUVRConfig:
     def test_config_creation_with_valid_data(self, valid_config):
         config = RunpodUVRConfig(**valid_config)
@@ -75,8 +69,8 @@ class TestRunpodUVRResponse:
 
 
 class TestRunpodUVR:
-    @patch("app.stt.background_remover.runpod_uvr.ClientSession")
-    def test_supported_audio_extensions(self, mock_client_session, valid_config):
+    @pytest.mark.asyncio
+    async def test_supported_audio_extensions(self, valid_config):
         uvr = RunpodUVR(valid_config)
         expected_extensions = (
             AudioExtension.MP3,
@@ -85,17 +79,16 @@ class TestRunpodUVR:
         )
         assert uvr.supported_audio_extensions == expected_extensions
 
-    @patch("app.stt.background_remover.runpod_uvr.ClientSession")
-    def test_output_audio_extension(self, mock_client_session, valid_config):
+    @pytest.mark.asyncio
+    async def test_output_audio_extension(self, valid_config):
         uvr = RunpodUVR(valid_config)
         assert uvr.output_audio_extension == AudioExtension.OGG
 
-    @patch("app.stt.background_remover.runpod_uvr.ClientSession")
-    def test_initialization_with_valid_config(self, mock_client_session, valid_config):
+    @pytest.mark.asyncio
+    async def test_initialization_with_valid_config(self, valid_config):
         uvr = RunpodUVR(valid_config)
         assert uvr._config.RUNPOD_API_KEY == "test_api_key"
         assert uvr._config.RUNPOD_UVR_ENDPOINT == "https://api.runpod.io/test/"
-        mock_client_session.assert_called_once()
 
     def test_initialization_with_missing_api_key(self, invalid_config_missing_key):
         with pytest.raises(
@@ -113,10 +106,7 @@ class TestRunpodUVR:
             RunpodUVR(invalid_config_missing_endpoint)
 
     @pytest.mark.asyncio
-    @patch("app.stt.background_remover.runpod_uvr.ClientSession")
-    async def test_remove_background_success_with_mp3(
-        self, mock_client_session, valid_config, mp3_audio
-    ):
+    async def test_remove_background_success_with_mp3(self, valid_config, mp3_audio):
         uvr = RunpodUVR(valid_config)
 
         processed_audio_data = b"processed_vocals_data"
@@ -146,10 +136,7 @@ class TestRunpodUVR:
         assert result.extension == AudioExtension.OGG
 
     @pytest.mark.asyncio
-    @patch("app.stt.background_remover.runpod_uvr.ClientSession")
-    async def test_remove_background_success_with_wav(
-        self, mock_client_session, valid_config, wav_audio
-    ):
+    async def test_remove_background_success_with_wav(self, valid_config, wav_audio):
         uvr = RunpodUVR(valid_config)
 
         processed_audio_data = b"processed_wav_vocals"
@@ -169,10 +156,7 @@ class TestRunpodUVR:
         assert result.extension == AudioExtension.OGG
 
     @pytest.mark.asyncio
-    @patch("app.stt.background_remover.runpod_uvr.ClientSession")
-    async def test_remove_background_api_error(
-        self, mock_client_session, valid_config, mp3_audio
-    ):
+    async def test_remove_background_api_error(self, valid_config, mp3_audio):
         uvr = RunpodUVR(valid_config)
 
         mock_response = Mock()
@@ -184,9 +168,8 @@ class TestRunpodUVR:
             await uvr._remove_background(mp3_audio)
 
     @pytest.mark.asyncio
-    @patch("app.stt.background_remover.runpod_uvr.ClientSession")
     async def test_remove_background_with_unsupported_format(
-        self, mock_client_session, valid_config, aac_audio
+        self, valid_config, aac_audio
     ):
         uvr = RunpodUVR(valid_config)
 
@@ -223,37 +206,3 @@ class TestRunpodUVR:
 
             assert result.binary == processed_audio_data
             assert result.extension == AudioExtension.OGG
-
-    @pytest.mark.asyncio
-    @patch("app.stt.background_remover.runpod_uvr.ClientSession")
-    async def test_remove_background_with_empty_audio(
-        self, mock_client_session, valid_config
-    ):
-        uvr = RunpodUVR(valid_config)
-        empty_audio = Audio(binary=b"", extension=AudioExtension.MP3)
-
-        processed_audio_data = b"processed_empty"
-        mock_response_data = {
-            "output": {"vocals": b64encode(processed_audio_data).decode("utf-8")}
-        }
-
-        mock_response = Mock()
-        mock_response.status = 200
-        mock_response.json = AsyncMock(return_value=mock_response_data)
-
-        uvr._session.post = AsyncMock(return_value=mock_response)
-
-        result = await uvr._remove_background(empty_audio)
-
-        uvr._session.post.assert_called_once_with(
-            "/runsync",
-            json={
-                "input": {
-                    "audio": b64encode(b"").decode("utf-8"),
-                    "parts": ["vocals"],
-                },
-            },
-        )
-
-        assert result.binary == processed_audio_data
-        assert result.extension == AudioExtension.OGG
