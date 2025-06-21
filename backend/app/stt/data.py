@@ -1,6 +1,6 @@
-from ..shared.supported import SubtitleExtension
+from ..shared.supported import Language, SubtitleExtension
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 
@@ -21,3 +21,4 @@ class Audio:
 class Transcription:
     content: str
     extension: SubtitleExtension
+    language: Language | None = field(default=None)

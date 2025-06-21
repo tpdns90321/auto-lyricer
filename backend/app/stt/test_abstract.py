@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from .abstract import _AudioWorker, BackgroundRemover, SpeechToText
 from .data import Audio, AudioExtension, Transcription
-from ..shared.supported import SubtitleExtension
+from ..shared.supported import Language, SubtitleExtension
 
 
 class ConcreteAudioWorker(_AudioWorker):
@@ -34,10 +34,16 @@ class ConcreteSpeechToText(SpeechToText):
     def __init__(self, config: dict):
         self.config = config
 
-    async def _transcribe(self, audio: Audio) -> Transcription:
+    async def _transcribe(
+        self,
+        audio: Audio,
+        target_language: Language | None = None,
+        prompt: str | None = None,
+    ) -> Transcription:
         return Transcription(
             content="Hello world transcription",
             extension=self._output_subtitle_extension,
+            language=target_language if target_language else None,
         )
 
 

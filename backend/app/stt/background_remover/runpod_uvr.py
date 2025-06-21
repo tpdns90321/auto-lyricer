@@ -8,8 +8,8 @@ from base64 import b64encode, b64decode
 
 @dataclass(frozen=True)
 class RunpodUVRConfig:
-    RUNPOD_API_KEY: str
-    RUNPOD_UVR_ENDPOINT: str
+    api_key: str
+    endpoint: str
 
 
 @dataclass(frozen=True)
@@ -29,25 +29,23 @@ class RunpodUVR(BackgroundRemover):
         """Initialize RunpodUVR with configuration.
 
         Args:
-            config: Dictionary containing RUNPOD_API_KEY and RUNPOD_UVR_ENDPOINT.
+            config: Dictionary containing api_key and endpoint.
 
         Raises:
             ValueError: If required configuration keys are missing or empty.
         """
         self._config = RunpodUVRConfig(**config)
 
-        if not self._config.RUNPOD_API_KEY:
-            raise ValueError("RUNPOD_API_KEY must be provided in the configuration.")
-        if not self._config.RUNPOD_UVR_ENDPOINT:
-            raise ValueError(
-                "RUNPOD_UVR_ENDPOINT must be provided in the configuration."
-            )
+        if not self._config.api_key:
+            raise ValueError("api_key must be provided in the configuration.")
+        if not self._config.endpoint:
+            raise ValueError("endpoint must be provided in the configuration.")
 
         self._session = ClientSession(
-            base_url=self._config.RUNPOD_UVR_ENDPOINT,
+            base_url=self._config.endpoint,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": self._config.RUNPOD_API_KEY,
+                "Authorization": self._config.api_key,
             },
         )
 

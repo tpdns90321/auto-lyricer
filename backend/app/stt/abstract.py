@@ -1,6 +1,6 @@
 from .data import Audio, AudioExtension, Transcription
 from .converter import convert_audio_extension
-from ..shared.supported import SubtitleExtension
+from ..shared.supported import Language, SubtitleExtension
 
 from abc import ABC, abstractmethod
 
@@ -75,7 +75,12 @@ class SpeechToText(_AudioWorker):
     _output_subtitle_extension: SubtitleExtension
 
     @abstractmethod
-    async def _transcribe(self, audio: Audio) -> Transcription:
+    async def _transcribe(
+        self,
+        audio: Audio,
+        target_language: Language | None = None,
+        prompt: str | None = None,
+    ) -> Transcription:
         """Transcribe the given audio to text.
 
         :param audio: The audio data to transcribe.
@@ -83,14 +88,19 @@ class SpeechToText(_AudioWorker):
         """
         pass
 
-    async def transcribe(self, audio: Audio) -> Transcription:
+    async def transcribe(
+        self,
+        audio: Audio,
+        target_language: Language | None = None,
+        prompt: str | None = None,
+    ) -> Transcription:
         """Transcribe the given audio to text.
 
         :param audio: The audio data to transcribe.
         :return: The Transcription Object with transcribed text.
         """
         target_audio: Audio = await self._convert_audio(audio)
-        return await self._transcribe(target_audio)
+        return await self._transcribe(target_audio, target_language, prompt)
 
     @property
     def output_subtitle_extension(self) -> SubtitleExtension:

@@ -9,19 +9,19 @@ from base64 import b64encode
 @pytest.fixture
 def valid_config():
     return {
-        "RUNPOD_API_KEY": "test_api_key",
-        "RUNPOD_UVR_ENDPOINT": "https://api.runpod.io/test/",
+        "api_key": "test_api_key",
+        "endpoint": "https://api.runpod.io/test/",
     }
 
 
 @pytest.fixture
 def invalid_config_missing_key():
-    return {"RUNPOD_API_KEY": "", "RUNPOD_UVR_ENDPOINT": "https://api.runpod.io/test/"}
+    return {"api_key": "", "endpoint": "https://api.runpod.io/test/"}
 
 
 @pytest.fixture
 def invalid_config_missing_endpoint():
-    return {"RUNPOD_API_KEY": "test_api_key", "RUNPOD_UVR_ENDPOINT": ""}
+    return {"api_key": "test_api_key", "endpoint": ""}
 
 
 @pytest.fixture
@@ -47,13 +47,13 @@ def aac_audio():
 class TestRunpodUVRConfig:
     def test_config_creation_with_valid_data(self, valid_config):
         config = RunpodUVRConfig(**valid_config)
-        assert config.RUNPOD_API_KEY == "test_api_key"
-        assert config.RUNPOD_UVR_ENDPOINT == "https://api.runpod.io/test/"
+        assert config.api_key == "test_api_key"
+        assert config.endpoint == "https://api.runpod.io/test/"
 
     def test_config_is_frozen(self, valid_config):
         config = RunpodUVRConfig(**valid_config)
         with pytest.raises(AttributeError):
-            config.RUNPOD_API_KEY = "new_key"
+            config.api_key = "new_key"
 
 
 class TestRunpodUVRResponse:
@@ -87,12 +87,12 @@ class TestRunpodUVR:
     @pytest.mark.asyncio
     async def test_initialization_with_valid_config(self, valid_config):
         uvr = RunpodUVR(valid_config)
-        assert uvr._config.RUNPOD_API_KEY == "test_api_key"
-        assert uvr._config.RUNPOD_UVR_ENDPOINT == "https://api.runpod.io/test/"
+        assert uvr._config.api_key == "test_api_key"
+        assert uvr._config.endpoint == "https://api.runpod.io/test/"
 
     def test_initialization_with_missing_api_key(self, invalid_config_missing_key):
         with pytest.raises(
-            ValueError, match="RUNPOD_API_KEY must be provided in the configuration"
+            ValueError, match="api_key must be provided in the configuration"
         ):
             RunpodUVR(invalid_config_missing_key)
 
@@ -101,7 +101,7 @@ class TestRunpodUVR:
     ):
         with pytest.raises(
             ValueError,
-            match="RUNPOD_UVR_ENDPOINT must be provided in the configuration",
+            match="endpoint must be provided in the configuration",
         ):
             RunpodUVR(invalid_config_missing_endpoint)
 
