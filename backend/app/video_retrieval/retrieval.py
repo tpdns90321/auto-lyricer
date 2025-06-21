@@ -1,3 +1,4 @@
+from ..shared.data import Audio, AudioExtension
 from .monkey_patch import gevent
 from .type import VideoInfo
 from .exception import VideoExtractError
@@ -39,7 +40,7 @@ class VideoRetrieval:
         )
         return result
 
-    async def retrieval_audio_of_video(self, url: str) -> bytes:
+    async def retrieval_audio_of_video(self, url: str) -> Audio:
         ytd_process = await asyncio.subprocess.create_subprocess_exec(
             "yt-dlp",
             "-f",
@@ -55,4 +56,8 @@ class VideoRetrieval:
         if ytd_process.stdout is None:
             raise VideoExtractError("Cannot extract video audio")
 
-        return await ytd_process.stdout.read()
+        binary = await ytd_process.stdout.read()
+        return Audio(
+            binary=binary,
+            extension=AudioExtension.AAC,
+        )

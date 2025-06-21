@@ -1,5 +1,6 @@
 from ..database import AIOSqlite
-from ..shared.supported import Language, SubtitleExtension
+from ..shared.data import SubtitleExtension
+from ..shared.supported import Language
 from .service import SubtitleService
 from .repository import SubtitleRepository
 from .dto import Subtitle, CreateSubtitle

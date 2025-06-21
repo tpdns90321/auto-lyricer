@@ -1,5 +1,5 @@
 from .runpod_uvr import RunpodUVR, RunpodUVRConfig, RunpodUVRResponse
-from ..data import Audio, AudioExtension
+from ...shared.data import Audio, AudioExtension
 
 import pytest
 from unittest.mock import AsyncMock, Mock, patch

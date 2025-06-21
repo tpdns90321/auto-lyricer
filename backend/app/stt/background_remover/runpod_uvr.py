@@ -1,5 +1,5 @@
 from ..abstract import BackgroundRemover
-from ..data import Audio, AudioExtension
+from ...shared.data import Audio, AudioExtension
 
 from dataclasses import dataclass
 from aiohttp import ClientSession

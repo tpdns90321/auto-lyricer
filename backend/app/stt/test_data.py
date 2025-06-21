@@ -1,6 +1,6 @@
+from ..shared.data import Audio, Transcription, AudioExtension, SubtitleExtension
+
 import pytest
-from .data import Audio, AudioExtension, Transcription
-from ..shared.supported import SubtitleExtension
 
 
 class TestAudioExtension:

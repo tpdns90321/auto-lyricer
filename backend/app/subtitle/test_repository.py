@@ -1,4 +1,5 @@
-from ..shared.supported import Language, SubtitleExtension
+from ..shared.data import SubtitleExtension
+from ..shared.supported import Language
 from ..database import AIOSqlite
 from .exception import NotFoundThingError, NotFoundThing
 from .repository import SubtitleRepository

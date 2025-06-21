@@ -1,4 +1,5 @@
-from ..shared.supported import Language, SubtitleExtension
+from ..shared.supported import Language
+from ..shared.data import SubtitleExtension
 from dataclasses import dataclass, field
 
 

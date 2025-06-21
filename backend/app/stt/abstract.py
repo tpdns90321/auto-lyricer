@@ -1,6 +1,6 @@
-from .data import Audio, AudioExtension, Transcription
+from ..shared.data import Audio, Transcription, AudioExtension, SubtitleExtension
+from ..shared.supported import Language
 from .converter import convert_audio_extension
-from ..shared.supported import Language, SubtitleExtension
 
 from abc import ABC, abstractmethod
 

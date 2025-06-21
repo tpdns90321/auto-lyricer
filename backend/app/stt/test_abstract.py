@@ -1,10 +1,10 @@
+from ..shared.data import Audio, Transcription, AudioExtension, SubtitleExtension
+from ..shared.supported import Language
+from .abstract import _AudioWorker, BackgroundRemover, SpeechToText
+
 import pytest
 import pytest_asyncio
 from unittest.mock import patch
-
-from .abstract import _AudioWorker, BackgroundRemover, SpeechToText
-from .data import Audio, AudioExtension, Transcription
-from ..shared.supported import Language, SubtitleExtension
 
 
 class ConcreteAudioWorker(_AudioWorker):

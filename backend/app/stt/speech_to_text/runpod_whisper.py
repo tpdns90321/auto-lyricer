@@ -1,6 +1,6 @@
-from ...shared.supported import Language, SubtitleExtension
+from ...shared.supported import Language
+from ...shared.data import Audio, Transcription, AudioExtension, SubtitleExtension
 from ..abstract import SpeechToText
-from ..data import Audio, AudioExtension, Transcription
 
 from dataclasses import dataclass, field
 from aiohttp import ClientSession

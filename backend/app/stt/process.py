@@ -1,4 +1,4 @@
-from .data import Audio, Transcription
+from ..shared.data import Audio, Transcription
 from .abstract import BackgroundRemover, SpeechToText
 
 

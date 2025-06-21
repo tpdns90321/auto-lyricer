@@ -1,3 +1,4 @@
+from ..shared.data import AudioExtension
 from .retrieval import VideoRetrieval
 
 import pytest
@@ -76,6 +77,7 @@ async def test_retrieval_audio_of_video(retrieval: VideoRetrieval):
             "app/video_retrieval/test_retrieval_audio_of_LHvYrn3FAgI.aac", "rb"
         ) as f:
             audio_content = f.read()
-            assert audio == audio_content
+            assert audio.binary == audio_content
+            assert audio.extension == AudioExtension.AAC
 
     assert_between_audio_and_file()

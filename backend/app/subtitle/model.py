@@ -1,5 +1,6 @@
 from ..database import AIOSqliteBase
-from ..shared.supported import Language, SubtitleExtension
+from ..shared.supported import Language
+from ..shared.data import SubtitleExtension
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import ForeignKey

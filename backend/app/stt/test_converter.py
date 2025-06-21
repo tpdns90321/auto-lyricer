@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock, patch
 from io import BytesIO
 
 from .converter import convert_audio_extension
-from .data import Audio, AudioExtension
+from ..shared.data import Audio, AudioExtension
 
 
 @pytest.fixture

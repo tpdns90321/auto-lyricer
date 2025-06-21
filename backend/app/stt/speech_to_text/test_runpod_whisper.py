@@ -1,5 +1,4 @@
-from ...shared.supported import SubtitleExtension
-from ..data import Audio, AudioExtension
+from ...shared.data import Audio, AudioExtension, SubtitleExtension
 from .runpod_whisper import (
     RunpodWhisper,
     RunpodWhisperConfig,

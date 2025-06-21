@@ -1,4 +1,4 @@
-from .data import Audio, AudioExtension
+from ..shared.data import Audio, AudioExtension
 
 import asyncio
 from io import BytesIO

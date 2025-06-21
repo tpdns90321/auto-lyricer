@@ -1,4 +1,4 @@
-from ..shared.supported import Language, SubtitleExtension
+from .supported import Language
 
 from dataclasses import dataclass, field
 from enum import Enum
@@ -9,6 +9,11 @@ class AudioExtension(Enum):
     MP3 = "mp3"
     OGG = "ogg"
     WAV = "wav"
+
+
+class SubtitleExtension(str, Enum):
+    SRT = "srt"
+    VTT = "vtt"
 
 
 @dataclass(frozen=True)

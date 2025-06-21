@@ -1,5 +1,6 @@
 from ..database import AIOSqlite
-from ..shared.supported import Language, SubtitleExtension, Platform
+from ..shared.supported import Language, Platform
+from ..shared.data import SubtitleExtension
 from .container import TranscriptionContainer
 from .dto import CreateTranscription
 from .api import router
